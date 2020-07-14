@@ -1,5 +1,5 @@
 #! /bin/bash
-ping -c 4 blog.jinjiang.com >> /dev/null
+ping -c 4 blog.jinjiang.fun >> /dev/null
 if [ $? -nt 0 ]
 then
     echo "Network config error!"
@@ -21,7 +21,7 @@ then
     parted -s /dev/vda mklabel gpt 
     parted -s /dev/vda mkpart ESP fat32 1M 513M 
     parted -s /dev/vda set 1 boot on 
-    parted -s /dev/vda mkpart primart ext4 512M 100%
+    parted -s /dev/vda mkpart primart ext4 513M 100%
     mkfs.fat -F32 /dev/vda1 >> /dev/null
     mkfs.ext4 /dev/vda2 >> /dev/null
     mount /dev/vda2 /mnt
