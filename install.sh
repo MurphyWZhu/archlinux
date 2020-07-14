@@ -113,30 +113,6 @@ else
     echo -e "..\c"
     echo -e "\033[32mDone\033[0m\n"
 fi
-if [ ${ARCHLINUXCN} = "true" ]
-then
-    echo -e "Configuring Archlinuxcn.\c"
-    arch-chroot /mnt pacman -S haveged --noconfirm &> /dev/null
-    echo -e "..\c"
-    arch-chroot /mnt systemctl enable haveged &> /dev/null
-    echo -e "..\c"
-    arch-chroot /mnt rm -rf /etc/pacman.d/gnupg &> /dev/null
-    arch-chroot /mnt pacman-key --init &> /dev/null
-    echo -e "..\c"
-    arch-chroot /mnt pacman-key --populate archlinux &> /dev/null
-    echo -e "..\c"
-    echo "cat >> /etc/pacman.conf <<EOF
-[archlinuxcn]
-Include = /etc/pacman.d/archlinuxcnlist
-EOF" | arch-chroot /mnt &> /dev/null
-
-    echo 'Server = https://mirrors.bfsu.edu.cn/archlinuxcn/$arch' >> /mnt/etc/pacman.d/archlinuxcnlist
-    arch-chroot /mnt pacman -Syu &> /dev/null
-    echo -e "..\c"
-    arch-chroot /mnt pacman -S archlinuxcn-keyring --noconfirm &> /dev/null
-    echo -e "..\c"
-    echo -e "\033[32mDone\033[0m\n"
-fi
 
 
 arch-chroot /mnt useradd -m -G wheel ${ADMIN_USER}
@@ -283,6 +259,31 @@ LC_COLLATE=C' > /etc/locale.conf" | arch-chroot /mnt &> /dev/null
         echo -e "..\c"
         echo -e "\033[32mDone\033[0m\n"
     fi
+fi
+
+if [ ${ARCHLINUXCN} = "true" ]
+then
+    echo -e "Configuring Archlinuxcn.\c"
+    arch-chroot /mnt pacman -S haveged --noconfirm &> /dev/null
+    echo -e "..\c"
+    arch-chroot /mnt systemctl enable haveged &> /dev/null
+    echo -e "..\c"
+    arch-chroot /mnt rm -rf /etc/pacman.d/gnupg &> /dev/null
+    arch-chroot /mnt pacman-key --init &> /dev/null
+    echo -e "..\c"
+    arch-chroot /mnt pacman-key --populate archlinux &> /dev/null
+    echo -e "..\c"
+    echo "cat >> /etc/pacman.conf <<EOF
+[archlinuxcn]
+Include = /etc/pacman.d/archlinuxcnlist
+EOF" | arch-chroot /mnt &> /dev/null
+
+    echo 'Server = https://mirrors.bfsu.edu.cn/archlinuxcn/$arch' >> /mnt/etc/pacman.d/archlinuxcnlist
+    arch-chroot /mnt pacman -Syu &> /dev/null
+    echo -e "..\c"
+    arch-chroot /mnt pacman -S archlinuxcn-keyring --noconfirm &> /dev/null
+    echo -e "..\c"
+    echo -e "\033[32mDone\033[0m\n"
 fi
 
 echo -e "Installing other packages......\c"
