@@ -83,21 +83,62 @@ then
     arch-chroot /mnt grub-install --target=x86_64-efi --efi-directory=/boot --bootloader-id=GRUB >> /dev/null
     arch-chroot /mnt grub-mkconfig -o /boot/grub/grub.cfg >> /dev/null
     echo "done."
-    echo "umounting disks..."
-    umount /mnt/boot
-    umount /mnt
-    echo "done."
+    #echo "umounting disks..."
+    #umount /mnt/boot
+    #umount /mnt
+    #echo "done."
 else
     echo "Installing and configuring grub...."
     arch-chroot /mnt pacman -S grub --noconfirm >> /dev/null
     arch-chroot /mnt grub-install --target=i386-pc /dev/${DISK} >> /dev/null
     arch-chroot /mnt grub-mkconfig -o /boot/grub/grub.cfg >> /dev/null
     echo "done."
-    echo "umounting disks..."
-    umount /mnt
-    echo 'done.'
+    #echo "umounting disks..."
+    #umount /mnt
+    #echo 'done.'
 fi
 
+
+if [ ${DESKTOP_ENV} != "none" ]
+then
+    lspci | grep -i vga | grep -i nvidia
+    if [ $? -eq 0 ]
+    then
+        NVIDIA=1
+	arch-chroot /mnt pacman -S nvidia --noconfirm >> /dev/null
+    fi
+    lspci | grep -i vga | grep -i intel
+    if [ $? -eq 0 ]
+    then
+        INTEL=1
+	arch-chroot /mnt pacman -S mesa vulkan-intel intel-media-driver libva-intel-driver --noconfirm >> /dev/null
+    fi
+    if [ ${NVIDIA} -eq 1 -a ${INTEL} -eq 1 ]
+    then
+        arch-chroot /mnt pacman -S nvidia-prime --noconfirm >> /dev/null
+    fi
+
+    arch-chroot /mnt pacman -S xorg --noconfirm >> /dev/null
+    arch-chroot /mnt pacman -S wqy-bitmapfont wqy-microhei wqy-zenhei --noconfirm >> /dev/null
+    echo "echo 'LANG=zh_CN.UTF-8
+    LC_COLLATE=C' >> /etc/locale.conf" | arch-chroot /mnt &> /dev/null
+
+    if [ ${DESKTOP_ENV} = "xfce4" ]
+    then
+        arch-chroot /mnt pacman -S xfce4 xfce4-goodies lightdm lightdm-gtk-greeter light-gtk-greeter-settings network-manager-applet pavucontrol pulseaudio --noconfirm >> /dev/null
+	arch-chroot /mnt systemctl enable lightdm >> /dev/null
+    fi
+
+    if [ ${DESKTOP_ENV} = "kde" ]
+    then
+        arch-chroot /mnt pacman -S plasma dolphin konsole --noconfirm >> /dev/null
+	arch-chroot /mnt systemctl enable sddm >> /dev/null
+fi
+
+arch-chroot /mnt systemctl enable NetworkManager >> /dev/null
+
+umount /mnt/boot
+umount /mnt
 echo 'Install Archlinux Successful!'
 echo 'Thank you for using this script!'
 echo 'My blog:   https://blog.jinjiang.fun'
