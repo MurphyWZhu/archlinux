@@ -92,19 +92,21 @@ else
 fi
 if [ ${ARCHLINUXCN} = "true" ]
 then
+    echo -e "Configuring Archlinuxcn...\n"
     arch-chroot /mnt pacman -S haveged --noconfirm
     arch-chroot /mnt systemctl enable haveged
     arch-chroot /mnt rm -rf /etc/pacman.d/gnupg
-    arch-chroot /mnt pacman-key --init
-    arch-chroot /mnt pacman-key --populate archlinux
+    arch-chroot /mnt pacman-key --init >> /dev/null
+    arch-chroot /mnt pacman-key --populate archlinux >> /dev/null
     echo "cat >> /etc/pacman.conf <<EOF
 [archlinuxcn]
 Include = /etc/pacman.d/archlinuxcnlist
 EOF" | arch-chroot /mnt &> /dev/null
 
     echo 'Server = https://mirrors.bfsu.edu.cn/archlinuxcn/$arch' >> /mnt/etc/pacman.d/archlinuxcnlist
-    arch-chroot /mnt pacman -Syu
-    arch-chroot /mnt pacman -S archlinuxcn-keyring --noconfirm
+    arch-chroot /mnt pacman -Syu >> /dev/null
+    arch-chroot /mnt pacman -S archlinuxcn-keyring --noconfirm >> /dev/null
+    echo -e "done.\n"
 fi
 
 arch-chroot /mnt useradd -m -G wheel ${ADMIN_USER}
@@ -214,7 +216,7 @@ LC_COLLATE=C' > /etc/locale.conf" | arch-chroot /mnt &> /dev/null
 fi
 
 arch-chroot /mnt systemctl enable NetworkManager >> /dev/null
-arch-chroot /mnt pacman -S ${OTHER_PACKAGES} >> /dev/null
+arch-chroot /mnt pacman -S ${OTHER_PACKAGES} --noconfirm >> /dev/null
 if [ ${boot_mode} = "uefi" ]
 then
     umount /mnt/boot
