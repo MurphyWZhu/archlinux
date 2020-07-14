@@ -184,7 +184,7 @@ then
     arch-chroot /mnt pacman -S wqy-bitmapfont wqy-microhei wqy-zenhei --noconfirm >> /dev/null
     echo "done."
     echo "echo 'LANG=zh_CN.UTF-8
-    LC_COLLATE=C' >> /etc/locale.conf" | arch-chroot /mnt &> /dev/null
+LC_COLLATE=C' > /etc/locale.conf" | arch-chroot /mnt &> /dev/null
 
     if [ ${DESKTOP_ENV} = "xfce4" ]
     then
@@ -197,6 +197,7 @@ then
     if [ ${DESKTOP_ENV} = "kde" ]
     then
         echo "Installing kde desktop environment..."
+	arch-chroot /mnt pacman -S appstream appstream-qt archlinux-appstream-data --noconfirm >> /dev/null
         arch-chroot /mnt pacman -S plasma dolphin konsole --noconfirm >> /dev/null
 	arch-chroot /mnt systemctl enable sddm >> /dev/null
 	echo "done."
