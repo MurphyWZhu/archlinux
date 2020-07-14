@@ -27,7 +27,7 @@ then
     parted -s /dev/${DISK} mkpart ESP fat32 1M 513M 
     parted -s /dev/${DISK} set 1 boot on 
     parted -s /dev/${DISK} mkpart primart ext4 513M 100%
-    mkfs.fat -F32 /dev/${DISK}1 >> /dev/null
+    mkfs.fat -F32 /dev/${DISK}1 &> /dev/null
     mkfs.ext4 /dev/${DISK}2 >> /dev/null
     mount /dev/${DISK}2 /mnt
     mkdir /mnt/boot
@@ -54,19 +54,19 @@ arch-chroot /mnt hwclock --systohc
 echo "echo 'en_US.UTF-8 UTF-8
 zh_CN.UTF-8 UTF-8
 zh_TW.UTF-8 UTF-8
-zh_HK.UTF-8 UTF-8' >> /etc/locale.gen" | arch-chroot /mnt
+zh_HK.UTF-8 UTF-8' >> /etc/locale.gen" | arch-chroot /mnt &> /dev/null
 
 arch-chroot /mnt locale-gen >> /dev/null
-echo "echo 'LANG=en_US.UTF-8' >> /etc/locale.conf" | arch-chroot /mnt
+echo "echo 'LANG=en_US.UTF-8' >> /etc/locale.conf" | arch-chroot /mnt &> /dev/null
 echo "done."
 
 echo "Configuring Network..."
-echo "echo '${HOST_NAME}' >> /etc/hostname" | arch-chroot /mnt
+echo "echo '${HOST_NAME}' >> /etc/hostname" | arch-chroot /mnt &> /dev/null
 echo "echo '127.0.0.1    localhost
 ::1    localhost
-127.0.1.1    ${HOST_NAME}.localdomain    ${HOST_NAME}' >> /etc/hosts" | arch-chroot /mnt
+127.0.1.1    ${HOST_NAME}.localdomain    ${HOST_NAME}' >> /etc/hosts" | arch-chroot /mnt &> /dev/null
 echo "done."
-echo "echo "root:${ROOT_PASSWD}" | chpasswd" | arch-chroot /mnt
+echo "echo "root:${ROOT_PASSWD}" | chpasswd" | arch-chroot /mnt &> /dev/null
 
 cat /proc/cpuinfo | grep name | grep Intel >> /dev/null
 if [ $? -eq 0 ]
@@ -80,8 +80,8 @@ if [ $boot_mode = "uefi" ]
 then
     echo "Installing and configuring grub...."
     arch-chroot /mnt pacman -S grub efibootmgr --noconfirm >> /dev/null
-    arch-chroot /mnt grub-install --target=x86_64-efi --efi-directory=/boot --bootloader-id=GRUB
-    arch-chroot /mnt grub-mkconfig -o /boot/grub/grub.cfg
+    arch-chroot /mnt grub-install --target=x86_64-efi --efi-directory=/boot --bootloader-id=GRUB >> /dev/null
+    arch-chroot /mnt grub-mkconfig -o /boot/grub/grub.cfg >> /dev/null
     echo "done."
     echo "umounting disks..."
     umount /mnt/boot
@@ -90,8 +90,8 @@ then
 else
     echo "Installing and configuring grub...."
     arch-chroot /mnt pacman -S grub --noconfirm >> /dev/null
-    arch-chroot /mnt grub-install --target=i386-pc /dev/${DISK}
-    arch-chroot /mnt grub-mkconfig -o /boot/grub/grub.cfg
+    arch-chroot /mnt grub-install --target=i386-pc /dev/${DISK} >> /dev/null
+    arch-chroot /mnt grub-mkconfig -o /boot/grub/grub.cfg >> /dev/null
     echo "done."
     echo "umounting disks..."
     umount /mnt
