@@ -1,4 +1,6 @@
 #! /bin/bash
+
+ROOT_PASSWD="000000"
 ping -c 4 blog.jinjiang.fun >> /dev/null
 if [ $? -ne 0 ]
 then
@@ -38,7 +40,7 @@ fi
 echo 'Server = https://mirrors.bfsu.edu.cn/archlinux/$repo/os/$arch
 Server = http://mirrors.tuna.tsinghua.edu.cn/archlinux/$repo/os/$arch' > /etc/pacman.d/mirrorlist
 
-pacstrap /mnt base base-devel linux linux-firmware vim networkmanager
+pacstrap /mnt base base-devel linux linux-firmware vim networkmanager >> /dev/null
 
 genfstab -U /mnt >> /mnt/etc/fstab
 
@@ -55,21 +57,22 @@ echo "echo 'karch' >> /etc/hostname" | arch-chroot /mnt
 echo "echo '127.0.0.1	localhost
 ::1		localhost
 127.0.1.1	karch.localdomain	karch' >> /etc/hosts" | arch-chroot /mnt
-arch-chroot /mnt passwd
+arch-chroot echo "root:${ROOT_PASSWD}" | chpasswd
+echo "root:${ROOT_PASSWD}"
 cat /proc/cpuinfo | grep name | grep Intel >> /dev/null
 if [ $? -eq 0 ]
 then
-    arch-chroot /mnt pacman -S intel-ucode --noconfirm
+    echo "pacman -S intel-ucode --noconfirm >> /dev/null" | arch-chroot /mnt
 fi
 if [ $boot_mode = "uefi" ]
 then
-    arch-chroot /mnt pacman -S grub efibootmgr --noconfirm
+    echo "pacman -S grub efibootmgr --noconfirm >> /dev/null" | arch-chroot /mnt
     arch-chroot /mnt grub-install --target=x86_64-efi --efi-directory=/boot --bootloader-id=GRUB
     arch-chroot /mnt grub-mkconfig -o /boot/grub/grub.cfg
     umount /mnt/boot
     umount /mnt
 else
-    arch-chroot /mnt pacman -S grub --noconfirm
+    echo "pacman -S grub --noconfirm >> /dev/null" | arch-chroot /mnt
     arch-chroot /mnt grub-install --target=i386-pc /dev/vda
     arch-chroot /mnt grub-mkconfig -o /boot/grub/grub.cfg
     umount /mnt
