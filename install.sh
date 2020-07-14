@@ -96,7 +96,7 @@ else
 fi
 if [ ${ARCHLINUXCN} = "true" ]
 then
-    arch-chroot /mnt pacman -S haveged
+    arch-chroot /mnt pacman -S haveged --noconfirm
     arch-chroot /mnt systemctl enable haveged
     arch-chroot /mnt rm -rf /etc/pacman.d/gnupg
     arch-chroot /mnt pacman-key --init
@@ -106,11 +106,9 @@ then
 Include = /etc/pacman.d/archlinuxcnlist
 EOF" | arch-chroot /mnt &> /dev/null
 
-    echo 'cat >> /etc/pacman.d/archlinuxcnlist <<EOF
-Server = https://mirrors.bfsu.edu.cn/archlinuxcn/$arch
-EOF' | arch-chroot /mnt &> /dev/null
-    arch-chroot /mnt pacman -Syu
-    arch-chroot /mnt pacman -S arhclinuxcn-keyring
+    echo 'echo 'Server = https://mirrors.bfsu.edu.cn/archlinuxcn/$arch'' | arch-chroot /mnt &> /dev/null
+    arch-chroot /mnt pacman -Syu --noconfirm
+    arch-chroot /mnt pacman -S arhclinuxcn-keyring --noconfirm
 fi
 
 arch-chroot /mnt useradd -m -G wheel ${ADMIN_USER}
