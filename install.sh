@@ -125,7 +125,7 @@ then
 
     if [ ${DESKTOP_ENV} = "xfce4" ]
     then
-        arch-chroot /mnt pacman -S xfce4 xfce4-goodies lightdm lightdm-gtk-greeter light-gtk-greeter-settings network-manager-applet pavucontrol pulseaudio --noconfirm >> /dev/null
+        arch-chroot /mnt pacman -S xfce4 xfce4-goodies lightdm lightdm-gtk-greeter lightdm-gtk-greeter-settings network-manager-applet pavucontrol pulseaudio --noconfirm >> /dev/null
 	arch-chroot /mnt systemctl enable lightdm >> /dev/null
     fi
 
