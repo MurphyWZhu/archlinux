@@ -105,43 +105,43 @@ if [ ${ENABLE_IPTABLES} = "true" ]
 then
     echo -e "Settings iptables...\n"
     echo "cat > /etc/iptables/iptables.rules <<EOF
-    *filter
-    :INPUT DROP [0:0]
-    :FORWARD DROP [0:0]
-    :OUTPUT ACCEPT [11:1196]
-    :TCP - [0:0]
-    :UDP - [0:0]
-    -A INPUT -m conntrack --ctstate RELATED,ESTABLISHED -j ACCEPT
-    -A INPUT -i lo -j ACCEPT
-    -A INPUT -m conntrack --ctstate INVALID -j DROP
-    -A INPUT -p icmp -m icmp --icmp-type 8 -m conntrack --ctstate NEW -j ACCEPT
-    -A INPUT -p udp -m conntrack --ctstate NEW -j UDP
-    -A INPUT -p tcp -m tcp --tcp-flags FIN,SYN,RST,ACK SYN -m conntrack --ctstate NEW -j TCP
-    -A INPUT -p udp -j REJECT --reject-with icmp-port-unreachable
-    -A INPUT -p tcp -j REJECT --reject-with tcp-reset
-    -A INPUT -j REJECT --reject-with icmp-proto-unreachable
-    COMMIT
-    EOF" | arch-chroot /mnt &> /dev/null
+*filter
+:INPUT DROP [0:0]
+:FORWARD DROP [0:0]
+:OUTPUT ACCEPT [11:1196]
+:TCP - [0:0]
+:UDP - [0:0]
+-A INPUT -m conntrack --ctstate RELATED,ESTABLISHED -j ACCEPT
+-A INPUT -i lo -j ACCEPT
+-A INPUT -m conntrack --ctstate INVALID -j DROP
+-A INPUT -p icmp -m icmp --icmp-type 8 -m conntrack --ctstate NEW -j ACCEPT
+-A INPUT -p udp -m conntrack --ctstate NEW -j UDP
+-A INPUT -p tcp -m tcp --tcp-flags FIN,SYN,RST,ACK SYN -m conntrack --ctstate NEW -j TCP
+-A INPUT -p udp -j REJECT --reject-with icmp-port-unreachable
+-A INPUT -p tcp -j REJECT --reject-with tcp-reset
+-A INPUT -j REJECT --reject-with icmp-proto-unreachable
+COMMIT
+EOF" | arch-chroot /mnt &> /dev/null
 
     echo "cat > /etc/iptables/ip6tables.rules <<EOF
-    *filter
-    :INPUT DROP [0:0]
-    :FORWARD DROP [0:0]
-    :OUTPUT ACCEPT [0:0]
-    :TCP - [0:0]
-    :UDP - [0:0]
-    -A INPUT -m conntrack --ctstate RELATED,ESTABLISHED -j ACCEPT
-    -A INPUT -i lo -j ACCEPT
-    -A INPUT -m conntrack --ctstate INVALID -j DROP
-    -A INPUT -s fe80::/10 -p ipv6-icmp -j ACCEPT
-    -A INPUT -p udp -m conntrack --ctstate NEW -j UDP
-    -A INPUT -p tcp -m tcp --tcp-flags FIN,SYN,RST,ACK SYN -m conntrack --ctstate NEW -j TCP
-    -A INPUT -p udp -j REJECT --reject-with icmp6-adm-prohibited
-    -A INPUT -p tcp -j REJECT --reject-with tcp-reset
-    -A INPUT -j REJECT --reject-with icmp6-adm-prohibited
-    -A INPUT -p ipv6-icmp -m icmp6 --icmpv6-type 128 -m conntrack --ctstate NEW -j ACCEPT
-    COMMIT
-    EOF" | arch-chroot /mnt &> /dev/null
+*filter
+:INPUT DROP [0:0]
+:FORWARD DROP [0:0]
+:OUTPUT ACCEPT [0:0]
+:TCP - [0:0]
+:UDP - [0:0]
+-A INPUT -m conntrack --ctstate RELATED,ESTABLISHED -j ACCEPT
+-A INPUT -i lo -j ACCEPT
+-A INPUT -m conntrack --ctstate INVALID -j DROP
+-A INPUT -s fe80::/10 -p ipv6-icmp -j ACCEPT
+-A INPUT -p udp -m conntrack --ctstate NEW -j UDP
+-A INPUT -p tcp -m tcp --tcp-flags FIN,SYN,RST,ACK SYN -m conntrack --ctstate NEW -j TCP
+-A INPUT -p udp -j REJECT --reject-with icmp6-adm-prohibited
+-A INPUT -p tcp -j REJECT --reject-with tcp-reset
+-A INPUT -j REJECT --reject-with icmp6-adm-prohibited
+-A INPUT -p ipv6-icmp -m icmp6 --icmpv6-type 128 -m conntrack --ctstate NEW -j ACCEPT
+COMMIT
+EOF" | arch-chroot /mnt &> /dev/null
     arch-chroot /mnt systemctl enable iptables ip6tables >> /dev/null
     echo -e "done.\n"
 fi
