@@ -133,6 +133,7 @@ then
     then
         arch-chroot /mnt pacman -S plasma dolphin konsole --noconfirm >> /dev/null
 	arch-chroot /mnt systemctl enable sddm >> /dev/null
+    fi
 fi
 
 arch-chroot /mnt systemctl enable NetworkManager >> /dev/null
@@ -143,5 +144,3 @@ echo 'Install Archlinux Successful!'
 echo 'Thank you for using this script!'
 echo 'My blog:   https://blog.jinjiang.fun'
 echo 'Plase remove your USB and reboot your computer'
-    
-
