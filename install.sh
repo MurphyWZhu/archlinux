@@ -106,7 +106,7 @@ then
 Include = /etc/pacman.d/archlinuxcnlist
 EOF" | arch-chroot /mnt &> /dev/null
 
-    echo 'echo 'Server = https://mirrors.bfsu.edu.cn/archlinuxcn/$arch'' | arch-chroot /mnt &> /dev/null
+    echo 'Server = https://mirrors.bfsu.edu.cn/archlinuxcn/$arch' >> /etc/pacman.d/archlinuxcnlist
     arch-chroot /mnt pacman -Syu
     arch-chroot /mnt pacman -S archlinuxcn-keyring --noconfirm
 fi
@@ -218,6 +218,7 @@ LC_COLLATE=C' > /etc/locale.conf" | arch-chroot /mnt &> /dev/null
 fi
 
 arch-chroot /mnt systemctl enable NetworkManager >> /dev/null
+arch-chroot /mnt pacman -S ${OTHER_PACKAGES} >> /dev/null
 if [ ${boot_mode} = "uefi" ]
 then
     umount /mnt/boot
