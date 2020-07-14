@@ -107,8 +107,8 @@ Include = /etc/pacman.d/archlinuxcnlist
 EOF" | arch-chroot /mnt &> /dev/null
 
     echo 'echo 'Server = https://mirrors.bfsu.edu.cn/archlinuxcn/$arch'' | arch-chroot /mnt &> /dev/null
-    arch-chroot /mnt pacman -Syu --noconfirm
-    arch-chroot /mnt pacman -S arhclinuxcn-keyring --noconfirm
+    arch-chroot /mnt pacman -Syu
+    arch-chroot /mnt pacman -S archlinuxcn-keyring --noconfirm
 fi
 
 arch-chroot /mnt useradd -m -G wheel ${ADMIN_USER}
@@ -211,15 +211,17 @@ LC_COLLATE=C' > /etc/locale.conf" | arch-chroot /mnt &> /dev/null
     then
         echo "Installing kde desktop environment..."
         arch-chroot /mnt pacman -S plasma dolphin konsole --noconfirm &> /dev/null
-	arch-chroot /mnt pacman -S appstream appstream-qt archlinux-appstream-data --noconfirm >> /dev/null
+	arch-chroot /mnt pacman -S appstream appstream-qt archlinux-appstream-data --noconfirm &> /dev/null
 	arch-chroot /mnt systemctl enable sddm >> /dev/null
 	echo "done."
     fi
 fi
 
 arch-chroot /mnt systemctl enable NetworkManager >> /dev/null
-
-umount /mnt/boot
+if [ ${boot_mode} = "uefi" ]
+then
+    umount /mnt/boot
+fi
 umount /mnt
 echo -e "\n\n\n"
 echo -e 'Install Archlinux Successful!\n'
