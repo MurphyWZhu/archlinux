@@ -1,6 +1,7 @@
 #! /bin/bash
 
-ROOT_PASSWD="000000"
+source config
+setfont /usr/share/kbd/consolefonts/iso01-12x22.psfu.gz
 ping -c 4 blog.jinjiang.fun >> /dev/null
 if [ $? -ne 0 ]
 then
@@ -18,6 +19,8 @@ else
     boot_mode="bios"
 fi
 
+echo "Your computer boot mode:${boot_mode}"
+echo "Disk Settings..."
 if [ $boot_mode = "uefi" ]
 then
     parted -s /dev/vda mklabel gpt 
@@ -36,14 +39,16 @@ else
     mkfs.ext4 /dev/vda1 >> /dev/null
     mount /dev/vda1 /mnt
 fi
+echo "done."
 
 echo 'Server = https://mirrors.bfsu.edu.cn/archlinux/$repo/os/$arch
 Server = http://mirrors.tuna.tsinghua.edu.cn/archlinux/$repo/os/$arch' > /etc/pacman.d/mirrorlist
 echo "Archlinux base packages installing."
+echo "Plase wait..."
 pacstrap /mnt base base-devel linux linux-firmware vim networkmanager >> /dev/null
 
 genfstab -U /mnt >> /mnt/etc/fstab
-
+echo "Localozation Settings..."
 arch-chroot /mnt ln -sf /usr/share/zoneinfo/Asia/Shanghai /etc/localtime
 arch-chroot /mnt hwclock --systohc
 echo "echo 'en_US.UTF-8 UTF-8
@@ -51,33 +56,51 @@ zh_CN.UTF-8 UTF-8
 zh_TW.UTF-8 UTF-8
 zh_HK.UTF-8 UTF-8' >> /etc/locale.gen" | arch-chroot /mnt
 
-arch-chroot /mnt locale-gen
+arch-chroot /mnt locale-gen >> /dev/null
 echo "echo 'LANG=en_US.UTF-8' >> /etc/locale.conf" | arch-chroot /mnt
-echo "echo 'karch' >> /etc/hostname" | arch-chroot /mnt
-echo "echo '127.0.0.1	localhost
-::1		localhost
-127.0.1.1	karch.localdomain	karch' >> /etc/hosts" | arch-chroot /mnt
+echo "done."
+
+echo "Configuring Network..."
+echo "echo '${HOST_NAME}' >> /etc/hostname" | arch-chroot /mnt
+echo "echo '127.0.0.1    localhost
+::1    localhost
+127.0.1.1    ${HOST_NAME}.localdomain    ${HOST_NAME}' >> /etc/hosts" | arch-chroot /mnt
+echo "done."
 echo "echo "root:${ROOT_PASSWD}" | chpasswd" | arch-chroot /mnt
 
 cat /proc/cpuinfo | grep name | grep Intel >> /dev/null
 if [ $? -eq 0 ]
 then
-    echo "pacman -S intel-ucode --noconfirm >> /dev/null" | arch-chroot /mnt
+    echo "Intel CPU has been detected on your compuert"
+    echo "Installing Intel CPU microcode..."
+    arch-chroot /mnt pacman -S intel-ucode --noconfirm >> /dev/null
+    echo "done."
 fi
 if [ $boot_mode = "uefi" ]
 then
-    echo "pacman -S grub efibootmgr --noconfirm >> /dev/null" | arch-chroot /mnt
+    echo "Installing and configuring grub...."
+    arch-chroot /mnt pacman -S grub efibootmgr --noconfirm >> /dev/null
     arch-chroot /mnt grub-install --target=x86_64-efi --efi-directory=/boot --bootloader-id=GRUB
     arch-chroot /mnt grub-mkconfig -o /boot/grub/grub.cfg
+    echo "done."
+    echo "umounting disks..."
     umount /mnt/boot
     umount /mnt
+    echo "done."
 else
-    echo "pacman -S grub --noconfirm >> /dev/null" | arch-chroot /mnt
+    echo "Installing and configuring grub...."
+    arch-chroot /mnt pacman -S grub --noconfirm >> /dev/null
     arch-chroot /mnt grub-install --target=i386-pc /dev/vda
     arch-chroot /mnt grub-mkconfig -o /boot/grub/grub.cfg
+    echo "done."
+    echo "umounting disks..."
     umount /mnt
+    echo 'done.'
 fi
 
-echo 'Installed Archlinux!'
+echo 'Install Archlinux Successful!'
+echo 'Thank you for using this script!'
+echo 'My blog:   https://blog.jinjiang.fun'
+echo 'Plase remove your USB and reboot your computer'
     
 
