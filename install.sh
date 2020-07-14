@@ -210,7 +210,7 @@ LC_COLLATE=C' > /etc/locale.conf" | arch-chroot /mnt &> /dev/null
         echo -e "..\c"
         arch-chroot /mnt systemctl enable lightdm &> /dev/null
         echo -e "..\c"
-    echo -e "\033[32mDone\033[0m\n"
+        echo -e "\033[32mDone\033[0m\n"
     fi
 
 
