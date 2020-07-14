@@ -104,7 +104,7 @@ arch-chroot /mnt sed -i "s/# %wheel ALL=(ALL) ALL/%wheel ALL=(ALL) ALL/g" /etc/s
 if [ ${ENABLE_IPTABLES} = "true" ]
 then
     echo -e "Settings iptables...\n"
-    echo "cat >> /etc/iptables/iptables.rules <<EOF
+    echo "cat > /etc/iptables/iptables.rules <<EOF
     *filter
     :INPUT DROP [0:0]
     :FORWARD DROP [0:0]
@@ -123,7 +123,7 @@ then
     COMMIT
     EOF" | arch-chroot /mnt &> /dev/null
 
-    echo "cat >> /etc/iptables/ip6tables.rules <<EOF
+    echo "cat > /etc/iptables/ip6tables.rules <<EOF
     *filter
     :INPUT DROP [0:0]
     :FORWARD DROP [0:0]
