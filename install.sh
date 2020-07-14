@@ -93,9 +93,24 @@ else
     arch-chroot /mnt grub-install --target=i386-pc /dev/${DISK} >> /dev/null
     arch-chroot /mnt grub-mkconfig -o /boot/grub/grub.cfg >> /dev/null
     echo "done."
-    #echo "umounting disks..."
-    #umount /mnt
-    #echo 'done.'
+fi
+if [ ${ARCHLINUXCN} = "true" ]
+then
+    arch-chroot /mnt pacman -S haveged
+    arch-chroot /mnt systemctl enable haveged
+    arch-chroot /mnt rm -rf /etc/pacman.d/gnupg
+    arch-chroot /mnt pacman-key --init
+    arch-chroot /mnt pacman-key --populate archlinux
+    echo "cat >> /etc/pacman.conf <<EOF
+[archlinuxcn]
+Include = /etc/pacman.d/archlinuxcnlist
+EOF" | arch-chroot /mnt &> /dev/null
+
+    echo 'cat >> /etc/pacman.d/archlinuxcnlist <<EOF
+Server = https://mirrors.bfsu.edu.cn/archlinuxcn/$arch
+EOF' | arch-chroot /mnt &> /dev/null
+    arch-chroot /mnt pacman -Syu
+    arch-chroot /mnt pacman -S arhclinuxcn-keyring
 fi
 
 arch-chroot /mnt useradd -m -G wheel ${ADMIN_USER}
@@ -197,8 +212,8 @@ LC_COLLATE=C' > /etc/locale.conf" | arch-chroot /mnt &> /dev/null
     if [ ${DESKTOP_ENV} = "kde" ]
     then
         echo "Installing kde desktop environment..."
+        arch-chroot /mnt pacman -S plasma dolphin konsole --noconfirm &> /dev/null
 	arch-chroot /mnt pacman -S appstream appstream-qt archlinux-appstream-data --noconfirm >> /dev/null
-        arch-chroot /mnt pacman -S plasma dolphin konsole --noconfirm >> /dev/null
 	arch-chroot /mnt systemctl enable sddm >> /dev/null
 	echo "done."
     fi
