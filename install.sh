@@ -39,7 +39,7 @@ fi
 
 echo 'Server = https://mirrors.bfsu.edu.cn/archlinux/$repo/os/$arch
 Server = http://mirrors.tuna.tsinghua.edu.cn/archlinux/$repo/os/$arch' > /etc/pacman.d/mirrorlist
-
+echo "Archlinux base packages installing."
 pacstrap /mnt base base-devel linux linux-firmware vim networkmanager >> /dev/null
 
 genfstab -U /mnt >> /mnt/etc/fstab
@@ -57,8 +57,8 @@ echo "echo 'karch' >> /etc/hostname" | arch-chroot /mnt
 echo "echo '127.0.0.1	localhost
 ::1		localhost
 127.0.1.1	karch.localdomain	karch' >> /etc/hosts" | arch-chroot /mnt
-arch-chroot echo "root:${ROOT_PASSWD}" | chpasswd
-echo "root:${ROOT_PASSWD}"
+echo "echo "root:${ROOT_PASSWD}" | chpasswd" | arch-chroot /mnt
+
 cat /proc/cpuinfo | grep name | grep Intel >> /dev/null
 if [ $? -eq 0 ]
 then
