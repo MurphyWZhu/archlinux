@@ -20,31 +20,40 @@ else
 fi
 
 echo "Your computer boot mode:${boot_mode}"
-echo -e "Disk Settings......\c"
+echo -e "Disk Settings.\c"
 if [ $boot_mode = "uefi" ]
 then
     parted -s /dev/${DISK} mklabel gpt && parted -s /dev/${DISK} mkpart ESP fat32 1M 513M && parted -s /dev/${DISK} set 1 boot on && parted -s /dev/${DISK} mkpart primart ext4 513M 100% || exit 2
+    echo -e "..\c"
     mkfs.fat -F32 /dev/${DISK}1 &> /dev/null
     mkfs.ext4 /dev/${DISK}2 &> /dev/null
+    echo -e "..\c"
     mount /dev/${DISK}2 /mnt
     mkdir /mnt/boot
     mount /dev/${DISK}1 /mnt/boot
 else
     parted -s /dev/${DISK} mklabel msdos && parted -s /dev/${DISK} mkpart primary ext4 1M 100% && parted -s /dev/${DISK} set 1 boot on ||  exit 2
+    echo -e "..\c"
     mkfs.ext4 /dev/${DISK}1 &> /dev/null
+    echo  -e "..\c"
     mount /dev/${DISK}1 /mnt
 fi
-echo -e "\033[32mDone\033[0m\n"
+echo -e ".\033[32mDone\033[0m\n"
 
 echo 'Server = https://mirrors.bfsu.edu.cn/archlinux/$repo/os/$arch
 Server = http://mirrors.tuna.tsinghua.edu.cn/archlinux/$repo/os/$arch' > /etc/pacman.d/mirrorlist
 
-echo -e "Archlinux base packages installing......\c"
-pacstrap /mnt base base-devel linux linux-firmware vim networkmanager >> /dev/null
+echo -e "Archlinux base packages installing.\c"
+pacstrap /mnt base base-devel linux linux-firmware >> /dev/null
+echo -e "..\c"
+pacstrap /mnt vim >> /dev/null
+echo -e "..\c"
+pacstrap /mnt networkmanager >> /dev/null
+echo -e "..\c"
 echo -e "\033[32mDone\033[0m\n"
 
 genfstab -U /mnt >> /mnt/etc/fstab
-echo "Localozation Settings......"
+echo -e "Localozation Settings.\c"
 arch-chroot /mnt ln -sf /usr/share/zoneinfo/Asia/Shanghai /etc/localtime
 arch-chroot /mnt hwclock --systohc
 echo "echo 'en_US.UTF-8 UTF-8
@@ -52,17 +61,21 @@ zh_CN.UTF-8 UTF-8
 zh_TW.UTF-8 UTF-8
 zh_HK.UTF-8 UTF-8' >> /etc/locale.gen" | arch-chroot /mnt &> /dev/null
 
+echo -e "..\c"
 arch-chroot /mnt locale-gen >> /dev/null
+echo -e "..\c"
 echo "echo 'LANG=en_US.UTF-8' >> /etc/locale.conf" | arch-chroot /mnt &> /dev/null
-echo -e "\033[32mDone\033[0m\n"
+echo -e ".\033[32mDone\033[0m\n"
 
 
-echo -e "Configuring Network......\c"
+echo -e "Configuring Network.\c"
 echo "echo '${HOST_NAME}' >> /etc/hostname" | arch-chroot /mnt &> /dev/null
 echo "echo '127.0.0.1    localhost
 ::1    localhost
 127.0.1.1    ${HOST_NAME}.localdomain    ${HOST_NAME}' >> /etc/hosts" | arch-chroot /mnt &> /dev/null
+echo -e "..\c"
 arch-chroot /mnt systemctl enable NetworkManager &> /dev/null
+echo -e "..\c"
 echo -e "\033[32mDone\033[0m\n"
 
 
@@ -73,34 +86,45 @@ cat /proc/cpuinfo | grep name | grep Intel >> /dev/null
 if [ $? -eq 0 ]
 then
     echo "Intel CPU has been detected on your compuert"
-    echo -e "Installing Intel CPU microcode......\c"
+    echo -e "Installing Intel CPU microcode..\c"
     arch-chroot /mnt pacman -S intel-ucode --noconfirm >> /dev/null
+    echo -e "..\c"
     echo -e "\033[32mDone\033[0m\n"
 fi
 
 
 if [ $boot_mode = "uefi" ]
 then
-    echo -e "Installing and configuring grub......\c"
+    echo -e "Installing and configuring grub.\c"
     arch-chroot /mnt pacman -S grub efibootmgr --noconfirm &> /dev/null
+    echo -e "..\c"
     arch-chroot /mnt grub-install --target=x86_64-efi --efi-directory=/boot --bootloader-id=GRUB &> /dev/null
+    echo -e "..\c"
     arch-chroot /mnt grub-mkconfig -o /boot/grub/grub.cfg &> /dev/null
+    echo -e "..\c"
     echo -e "\033[32mDone\033[0m\n"
 else
-    echo -e "Installing and configuring grub......\c"
+    echo -e "Installing and configuring grub.\c"
     arch-chroot /mnt pacman -S grub --noconfirm &> /dev/null
+    echo -e "..\c"
     arch-chroot /mnt grub-install --target=i386-pc /dev/${DISK} &> /dev/null
+    echo -e "..\c"
     arch-chroot /mnt grub-mkconfig -o /boot/grub/grub.cfg &> /dev/null
+    echo -e "..\c"
     echo -e "\033[32mDone\033[0m\n"
 fi
 if [ ${ARCHLINUXCN} = "true" ]
 then
-    echo -e "Configuring Archlinuxcn......\c"
+    echo -e "Configuring Archlinuxcn.\c"
     arch-chroot /mnt pacman -S haveged --noconfirm &> /dev/null
+    echo -e "..\c"
     arch-chroot /mnt systemctl enable haveged &> /dev/null
+    echo -e "..\c"
     arch-chroot /mnt rm -rf /etc/pacman.d/gnupg &> /dev/null
     arch-chroot /mnt pacman-key --init &> /dev/null
+    echo -e "..\c"
     arch-chroot /mnt pacman-key --populate archlinux &> /dev/null
+    echo -e "..\c"
     echo "cat >> /etc/pacman.conf <<EOF
 [archlinuxcn]
 Include = /etc/pacman.d/archlinuxcnlist
@@ -108,7 +132,9 @@ EOF" | arch-chroot /mnt &> /dev/null
 
     echo 'Server = https://mirrors.bfsu.edu.cn/archlinuxcn/$arch' >> /mnt/etc/pacman.d/archlinuxcnlist
     arch-chroot /mnt pacman -Syu &> /dev/null
+    echo -e "..\c"
     arch-chroot /mnt pacman -S archlinuxcn-keyring --noconfirm &> /dev/null
+    echo -e "..\c"
     echo -e "\033[32mDone\033[0m\n"
 fi
 
@@ -120,7 +146,7 @@ arch-chroot /mnt sed -i "s/# %wheel ALL=(ALL) ALL/%wheel ALL=(ALL) ALL/g" /etc/s
 
 if [ ${ENABLE_IPTABLES} = "true" ]
 then
-    echo -e "Settings iptables......\c"
+    echo -e "Settings iptables..\c"
     echo "cat > /etc/iptables/iptables.rules <<EOF
 *filter
 :INPUT DROP [0:0]
@@ -159,7 +185,9 @@ EOF" | arch-chroot /mnt &> /dev/null
 -A INPUT -p ipv6-icmp -m icmp6 --icmpv6-type 128 -m conntrack --ctstate NEW -j ACCEPT
 COMMIT
 EOF" | arch-chroot /mnt &> /dev/null
+    echo -e "..\c"
     arch-chroot /mnt systemctl enable iptables ip6tables &> /dev/null
+    echo -e "..\c"
     echo -e "\033[32mDone\033[0m\n"
 fi
 
@@ -175,8 +203,9 @@ then
     then
         NVIDIA=1
 	echo "Your computer has an Nvidia graphics card"
-	echo -e "Installing Nvidia drive......\c"
+	echo -e "Installing Nvidia drive.\c"
 	arch-chroot /mnt pacman -S nvidia --noconfirm &> /dev/null
+        echo -e "..\c"
 	echo -e "\033[32mDone\033[0m\n"
     fi
     lspci | grep -i vga | grep -i intel
@@ -184,24 +213,32 @@ then
     then
         INTEL=1
 	echo "Your computer has an Intel graphics card"
-	echo -e "Installing Intel drive......\c"
-	arch-chroot /mnt pacman -S mesa vulkan-intel intel-media-driver libva-intel-driver --noconfirm &> /dev/null
+	echo -e "Installing Intel drive.\c"
+	arch-chroot /mnt pacman -S mesa vulkan-intel --noconfirm &> /dev/null
+        echo -e "..\c"
+       	arch-chroot /mnt pacman -S intel-media-driver libva-intel-driver --noconfirm &> /dev/null
+        echo -e "..\c"
 	echo -e "\033[32mDone\033[0m\n"
     fi
 
     if [ ${NVIDIA} -eq 1 -a ${INTEL} -eq 1 ]
     then
         echo "Oh,Your computer has Intel GPU and Nvidia GPU"
-	echo -e "So,Installing nvidia-prime......\c"
+	echo -e "So,Installing nvidia-prime..\c"
         arch-chroot /mnt pacman -S nvidia-prime --noconfirm &> /dev/null
+        echo -e "..\c"
 	echo -e "\033[32mDone\033[0m\n"
     fi
-    echo -e "Install xorg......\c"
+    echo -e "Install xorg..\c"
     arch-chroot /mnt pacman -S xorg --noconfirm &> /dev/null
+    echo -e "..\c"
     echo -e "\033[32mDone\033[0m\n"
     
-    echo -e "Install chinese fonts......\c"
-    arch-chroot /mnt pacman -S wqy-bitmapfont wqy-microhei wqy-zenhei --noconfirm >> /dev/null
+    echo -e "Install chinese fonts..\c"
+    arch-chroot /mnt pacman -S wqy-bitmapfont --noconfirm >> /dev/null
+    echo -e "..\c"
+    arch-chroot /mnt pacman -S wqy-microhei wqy-zenhei --noconfirm >> /dev/null
+    echo -e "..\c"
     echo -e "\033[32mDone\033[0m\n"
     echo "echo 'LANG=zh_CN.UTF-8
 LC_COLLATE=C' > /etc/locale.conf" | arch-chroot /mnt &> /dev/null
@@ -209,28 +246,41 @@ LC_COLLATE=C' > /etc/locale.conf" | arch-chroot /mnt &> /dev/null
 
     if [ ${DESKTOP_ENV} = "xfce4" ]
     then
-        echo -e "Installing xfce4 desktop environment......\c"
-        arch-chroot /mnt pacman -S xfce4 xfce4-goodies lightdm lightdm-gtk-greeter lightdm-gtk-greeter-settings network-manager-applet pavucontrol pulseaudio --noconfirm &> /dev/null
+        echo -e "Installing xfce4 desktop environment.\c"
+        arch-chroot /mnt pacman -S xfce4 --noconfirm &> /dev/null
+        echo -e "..\c"
+	arch-chroot /mnt pacman -S xfce4-goodies --noconfirm &> /dev/null
+        echo -e "..\c"
+        arch-chroot /mnt pacman -S lightdm lightdm-gtk-greeter lightdm-gtk-greeter-settings --noconfirm &> /dev/null
+        echo -e "..\c"
+        arch-chroot /mnt pacman -S network-manager-applet pavucontrol pulseaudio --noconfirm &> /dev/null
+        echo -e "..\c"
 	arch-chroot /mnt systemctl enable lightdm &> /dev/null
+        echo -e "..\c"
 	echo -e "\033[32mDone\033[0m\n"
     fi
 
 
     if [ ${DESKTOP_ENV} = "kde" ]
     then
-        echo -e "Installing kde desktop environment......\c"
+        echo -e "Installing kde desktop environment.\c"
         arch-chroot /mnt pacman -S plasma dolphin konsole --noconfirm &> /dev/null
+        echo -e "..\c"
 	arch-chroot /mnt pacman -S appstream appstream-qt archlinux-appstream-data --noconfirm &> /dev/null
+        echo -e "..\c"
 	arch-chroot /mnt systemctl enable sddm &> /dev/null
+        echo -e "..\c"
 	echo -e "\033[32mDone\033[0m\n"
     fi
 
 
     if [ ${DESKTOP_ENV} = 'gnome' ]
     then
-        echo -e "Installing gnome desktop environment......\c"
+        echo -e "Installing gnome desktop environment..\c"
 	arch-chroot /mnt pacman -S gnome --noconfirm &> /de/null
+        echo -e "..\c"
 	arch-chroot /mnt systemctl enable gdm &> /dev/null
+        echo -e "..\c"
         echo -e "\033[32mDone\033[0m\n"
     fi
 fi
@@ -245,7 +295,7 @@ then
 fi
 umount /mnt
 echo -e "\n\n\n"
-echo -e "Install Archlinux \033[32mSuccessful!\n"
+echo -e "Install Archlinux \033[32mSuccessful!\033[0m\n"
 echo -e "Thank you for using this script!\n"
 echo -e "My blog:   \033[34mhttps://blog.jinjiang.fun\033[0m\n"
 echo -e "Plase remove your USB and reboot your computer\n"
