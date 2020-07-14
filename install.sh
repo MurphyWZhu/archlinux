@@ -44,22 +44,22 @@ genfstab -U /mnt >> /mnt/etc/fstab
 
 arch-chroot /mnt ln -sf /usr/share/zoneinfo/Asia/Shanghai /etc/localtime
 arch-chroot /mnt hwclock --systohc
-arch-chroot /mnt "echo 'en_US.UTF-8 UTF-8
+echo 'echo 'en_US.UTF-8 UTF-8
 zh_CN.UTF-8 UTF-8
 zh_TW.UTF-8 UTF-8
-zh_HK.UTF-8 UTF-8' >> /etc/locale.gen"
+zh_HK.UTF-8 UTF-8' >> /etc/locale.gen' | arch-chroot /mnt
 
 arch-chroot /mnt locale-gen
-arch-chroot /mnt "echo 'LANG=en_US.UTF-8' >> /etc/locale.conf"
-arch-chroot /mnt "echo 'karch' >> /etc/hostname"
+echo 'echo 'LANG=en_US.UTF-8' >> /etc/locale.conf' | arch-chroot /mnt
+echo 'echo 'karch' >> /etc/hostname"
 arch-chroot /mnt "echo '127.0.0.1	localhost
 ::1		localhost
-127.0.1.1	karch.localdomain	karch' >> /etc/hosts"
+127.0.1.1	karch.localdomain	karch' >> /etc/hosts' | arch-chroot /mnt
 arch-chroot /mnt passwd
 cat /proc/cpuinfo | grep name | grep Intel >> /dev/null
 if [ $? -eq 0 ]
 then
-    arch-chroot /mnt "pacman -S intel-ucode --noconfirm"
+    arch-chroot /mnt pacman -S intel-ucode --noconfirm
 fi
 if [ $boot_mode = "uefi" ]
 then
