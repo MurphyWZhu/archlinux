@@ -98,41 +98,108 @@ else
     #echo 'done.'
 fi
 
+arch-chroot /mnt useradd -m -G wheel ${ADMIN_USER}
+echo "echo '${ADMIN_USER}:${ADMIN_USER_PASSWD}' | chpasswd" | arch-chroot /mnt &> /dev/null
+arch-chroot /mnt sed -i "s/# %wheel ALL=(ALL) ALL/%wheel ALL=(ALL) ALL/g" /etc/sudoers
+if [ ${ENABLE_IPTABLES} = "true" ]
+then
+    echo -e "Settings iptables...\n"
+    echo "cat >> /etc/iptables/iptables.rules <<EOF
+    *filter
+    :INPUT DROP [0:0]
+    :FORWARD DROP [0:0]
+    :OUTPUT ACCEPT [11:1196]
+    :TCP - [0:0]
+    :UDP - [0:0]
+    -A INPUT -m conntrack --ctstate RELATED,ESTABLISHED -j ACCEPT
+    -A INPUT -i lo -j ACCEPT
+    -A INPUT -m conntrack --ctstate INVALID -j DROP
+    -A INPUT -p icmp -m icmp --icmp-type 8 -m conntrack --ctstate NEW -j ACCEPT
+    -A INPUT -p udp -m conntrack --ctstate NEW -j UDP
+    -A INPUT -p tcp -m tcp --tcp-flags FIN,SYN,RST,ACK SYN -m conntrack --ctstate NEW -j TCP
+    -A INPUT -p udp -j REJECT --reject-with icmp-port-unreachable
+    -A INPUT -p tcp -j REJECT --reject-with tcp-reset
+    -A INPUT -j REJECT --reject-with icmp-proto-unreachable
+    COMMIT
+    EOF" | arch-chroot /mnt &> /dev/null
+
+    echo "cat >> /etc/iptables/ip6tables.rules <<EOF
+    *filter
+    :INPUT DROP [0:0]
+    :FORWARD DROP [0:0]
+    :OUTPUT ACCEPT [0:0]
+    :TCP - [0:0]
+    :UDP - [0:0]
+    -A INPUT -m conntrack --ctstate RELATED,ESTABLISHED -j ACCEPT
+    -A INPUT -i lo -j ACCEPT
+    -A INPUT -m conntrack --ctstate INVALID -j DROP
+    -A INPUT -s fe80::/10 -p ipv6-icmp -j ACCEPT
+    -A INPUT -p udp -m conntrack --ctstate NEW -j UDP
+    -A INPUT -p tcp -m tcp --tcp-flags FIN,SYN,RST,ACK SYN -m conntrack --ctstate NEW -j TCP
+    -A INPUT -p udp -j REJECT --reject-with icmp6-adm-prohibited
+    -A INPUT -p tcp -j REJECT --reject-with tcp-reset
+    -A INPUT -j REJECT --reject-with icmp6-adm-prohibited
+    -A INPUT -p ipv6-icmp -m icmp6 --icmpv6-type 128 -m conntrack --ctstate NEW -j ACCEPT
+    COMMIT
+    EOF" | arch-chroot /mnt &> /dev/null
+    arch-chroot /mnt systemctl enable iptables ip6tables >> /dev/null
+    echo -e "done.\n"
+fi
 
 if [ ${DESKTOP_ENV} != "none" ]
 then
+    echo "Your desktop environment of choice is ${DESKTOP_ENV}"
+    NVIDIA=0
+    INTEL=0
     lspci | grep -i vga | grep -i nvidia
     if [ $? -eq 0 ]
     then
         NVIDIA=1
+	echo "Your computer has an Nvidia graphics card"
+	echo "Installing Nvidia drive..."
 	arch-chroot /mnt pacman -S nvidia --noconfirm >> /dev/null
+	echo "done."
     fi
     lspci | grep -i vga | grep -i intel
     if [ $? -eq 0 ]
     then
         INTEL=1
+	echo "Your computer has an Intel graphics card"
+	echo "Installing Intel drive..."
 	arch-chroot /mnt pacman -S mesa vulkan-intel intel-media-driver libva-intel-driver --noconfirm >> /dev/null
-    fi
-    if [ ${NVIDIA} -eq 1 -a ${INTEL} -eq 1 ]
-    then
-        arch-chroot /mnt pacman -S nvidia-prime --noconfirm >> /dev/null
+	echo "done."
     fi
 
+    if [ ${NVIDIA} -eq 1 -a ${INTEL} -eq 1 ]
+    then
+        echo "Oh,Your computer has Intel GPU and Nvidia GPU"
+	echo "So,Installing nvidia-prime..."
+        arch-chroot /mnt pacman -S nvidia-prime --noconfirm >> /dev/null
+	echo "done."
+    fi
+    echo "Install xorg..."
     arch-chroot /mnt pacman -S xorg --noconfirm >> /dev/null
+    echo "done."
+    echo "Install chinese fonts..."
     arch-chroot /mnt pacman -S wqy-bitmapfont wqy-microhei wqy-zenhei --noconfirm >> /dev/null
+    echo "done."
     echo "echo 'LANG=zh_CN.UTF-8
     LC_COLLATE=C' >> /etc/locale.conf" | arch-chroot /mnt &> /dev/null
 
     if [ ${DESKTOP_ENV} = "xfce4" ]
     then
+        echo "Installing xfce4 desktop environment..."
         arch-chroot /mnt pacman -S xfce4 xfce4-goodies lightdm lightdm-gtk-greeter lightdm-gtk-greeter-settings network-manager-applet pavucontrol pulseaudio --noconfirm >> /dev/null
 	arch-chroot /mnt systemctl enable lightdm >> /dev/null
+	echo "done."
     fi
 
     if [ ${DESKTOP_ENV} = "kde" ]
     then
+        echo "Installing kde desktop environment..."
         arch-chroot /mnt pacman -S plasma dolphin konsole --noconfirm >> /dev/null
 	arch-chroot /mnt systemctl enable sddm >> /dev/null
+	echo "done."
     fi
 fi
 
@@ -140,7 +207,8 @@ arch-chroot /mnt systemctl enable NetworkManager >> /dev/null
 
 umount /mnt/boot
 umount /mnt
-echo 'Install Archlinux Successful!'
-echo 'Thank you for using this script!'
-echo 'My blog:   https://blog.jinjiang.fun'
-echo 'Plase remove your USB and reboot your computer'
+echo -e "\n\n\n"
+echo -e 'Install Archlinux Successful!\n'
+echo -e 'Thank you for using this script!\n'
+echo -e 'My blog:   https://blog.jinjiang.fun\n'
+echo -e 'Plase remove your USB and reboot your computer\n'
