@@ -10,13 +10,7 @@ ping -c 4 blog.jinjiang.fun >> /dev/null || funerror "error:Network Error!" 1
 
 timedatectl set-ntp true
 
-ls /sys/firmware/efi/efivars >> /dev/null
-if [ $? -eq 0 ]
-then
-    boot_mode="uefi"
-else
-    boot_mode="bios"
-fi
+ls /sys/firmware/efi/efivars >> /dev/null && boot_mode="uefi" || boot_mode="bios"
 
 echo "Your computer boot mode:${boot_mode}"
 echo -e "Disk Settings.\c"
@@ -27,9 +21,7 @@ then
     mkfs.fat -F32 /dev/${DISK}1 &> /dev/null || funerror "error:mkfs error" 4
     mkfs.ext4 /dev/${DISK}2 &> /dev/null || funerror "error:mkfs error" 4
     echo -e "..\c"
-    mount /dev/${DISK}2 /mnt
-    mkdir /mnt/boot
-    mount /dev/${DISK}1 /mnt/boot
+    mount /dev/${DISK}2 /mnt && mkdir /mnt/boot && mount /dev/${DISK}1 /mnt/boot
 else
     parted -s /dev/${DISK} mklabel msdos && parted -s /dev/${DISK} mkpart primary ext4 1M 100% && parted -s /dev/${DISK} set 1 boot on ||  funerror "error:parted error" 3
     echo -e "..\c"
@@ -43,11 +35,7 @@ echo 'Server = https://mirrors.bfsu.edu.cn/archlinux/$repo/os/$arch
 Server = http://mirrors.tuna.tsinghua.edu.cn/archlinux/$repo/os/$arch' > /etc/pacman.d/mirrorlist
 
 echo -e "Archlinux base packages installing.\c"
-pacstrap /mnt base base-devel linux linux-firmware >> /dev/null || funerror "error:pacman error" 2
-echo -e "..\c"
-pacstrap /mnt vim >> /dev/null || funerror "error:pacman error" 2
-echo -e "..\c"
-pacstrap /mnt networkmanager >> /dev/null || funerror "error:pacman error" 2
+pacstrap /mnt base base-devel linux linux-firmware vim networkmanager >> /dev/null || funerror "error:pacman error" 2
 echo -e "..\c"
 echo -e "\033[32mDone\033[0m\n"
 
@@ -177,42 +165,38 @@ then
     if [ $? -eq 0 ]
     then
         NVIDIA=1
-	    echo "Your computer has an Nvidia graphics card"
-	    echo -e "Installing Nvidia drive.\c"
-	    arch-chroot /mnt pacman -S nvidia --noconfirm &> /dev/null || funerror "error:pacman error" 2
+        echo "Your computer has an Nvidia graphics card"
+        echo -e "Installing Nvidia drive.\c"
+        arch-chroot /mnt pacman -S nvidia --noconfirm &> /dev/null || funerror "error:pacman error" 2
         echo -e "..\c"
-	    echo -e "\033[32mDone\033[0m\n"
+        echo -e "\033[32mDone\033[0m\n"
     fi
     lspci | grep -i vga | grep -i intel
     if [ $? -eq 0 ]
     then
         INTEL=1
-	    echo "Your computer has an Intel graphics card"
-	    echo -e "Installing Intel drive.\c"
-	    arch-chroot /mnt pacman -S mesa vulkan-intel --noconfirm &> /dev/null || funerror "error:pacman error" 2
+        echo "Your computer has an Intel graphics card"
+        echo -e "Installing Intel drive.\c"
+        arch-chroot /mnt pacman -S mesa vulkan-intel libva-intel-driver intel-media-driver --noconfirm &> /dev/null || funerror "error:pacman error" 2
         echo -e "..\c"
-       	arch-chroot /mnt pacman -S intel-media-driver libva-intel-driver --noconfirm &> /dev/null || funerror "error:pacman error" 2
-        echo -e "..\c"
-	    echo -e "\033[32mDone\033[0m\n"
+        echo -e "\033[32mDone\033[0m\n"
     fi
 
     if [ ${NVIDIA} -eq 1 -a ${INTEL} -eq 1 ]
     then
         echo "Oh,Your computer has Intel GPU and Nvidia GPU"
-	    echo -e "So,Installing nvidia-prime..\c"
+        echo -e "So,Installing nvidia-prime..\c"
         arch-chroot /mnt pacman -S nvidia-prime --noconfirm &> /dev/null || funerror "error:pacman error" 2
         echo -e "..\c"
-	    echo -e "\033[32mDone\033[0m\n"
+        echo -e "\033[32mDone\033[0m\n"
     fi
     echo -e "Install xorg..\c"
     arch-chroot /mnt pacman -S xorg --noconfirm &> /dev/null || funerror "error:pacman error" 2
     echo -e "..\c"
     echo -e "\033[32mDone\033[0m\n"
-    
+
     echo -e "Install chinese fonts..\c"
-    arch-chroot /mnt pacman -S wqy-bitmapfont --noconfirm >> /dev/null || funerror "error:pacman error" 2
-    echo -e "..\c"
-    arch-chroot /mnt pacman -S wqy-microhei wqy-zenhei --noconfirm >> /dev/null || funerror "error:pacman error" 2
+    arch-chroot /mnt pacman -S wqy-bitmapfont wqy-microhei wqy-zenhei --noconfirm >> /dev/null || funerror "error:pacman error" 2
     echo -e "..\c"
     echo -e "\033[32mDone\033[0m\n"
     echo "echo 'LANG=zh_CN.UTF-8
@@ -222,17 +206,11 @@ LC_COLLATE=C' > /etc/locale.conf" | arch-chroot /mnt &> /dev/null
     if [ ${DESKTOP_ENV} = "xfce4" ]
     then
         echo -e "Installing xfce4 desktop environment.\c"
-        arch-chroot /mnt pacman -S xfce4 --noconfirm &> /dev/null || funerror "error:pacman error" 2
+        arch-chroot /mnt pacman -S xfce4 xfce4-goodies lightdm lightdm-gtk-greeter lightdm-gtk-greeter-settings network-manager-applet pavucontrol pulseaudio --noconfirm &> /dev/null || funerror "error:pacman error" 2
         echo -e "..\c"
-	    arch-chroot /mnt pacman -S xfce4-goodies --noconfirm &> /dev/null || funerror "error:pacman error" 2
+        arch-chroot /mnt systemctl enable lightdm &> /dev/null
         echo -e "..\c"
-        arch-chroot /mnt pacman -S lightdm lightdm-gtk-greeter lightdm-gtk-greeter-settings --noconfirm &> /dev/null || funerror "error:pacman error" 2
-        echo -e "..\c"
-        arch-chroot /mnt pacman -S network-manager-applet pavucontrol pulseaudio --noconfirm &> /dev/null || funerror "error:pacman error" 2
-        echo -e "..\c"
-	    arch-chroot /mnt systemctl enable lightdm &> /dev/null
-        echo -e "..\c"
-	echo -e "\033[32mDone\033[0m\n"
+    echo -e "\033[32mDone\033[0m\n"
     fi
 
 
@@ -241,20 +219,20 @@ LC_COLLATE=C' > /etc/locale.conf" | arch-chroot /mnt &> /dev/null
         echo -e "Installing kde desktop environment.\c"
         arch-chroot /mnt pacman -S plasma dolphin konsole --noconfirm &> /dev/null || funerror "error:pacman error" 2
         echo -e "..\c"
-	    arch-chroot /mnt pacman -S appstream appstream-qt archlinux-appstream-data --noconfirm &> /dev/null || funerror "error:pacman error" 2
+        arch-chroot /mnt pacman -S appstream appstream-qt archlinux-appstream-data --noconfirm &> /dev/null || funerror "error:pacman error" 2
         echo -e "..\c"
-	    arch-chroot /mnt systemctl enable sddm &> /dev/null
+        arch-chroot /mnt systemctl enable sddm &> /dev/null
         echo -e "..\c"
-	    echo -e "\033[32mDone\033[0m\n"
+        echo -e "\033[32mDone\033[0m\n"
     fi
 
 
     if [ ${DESKTOP_ENV} = 'gnome' ]
     then
         echo -e "Installing gnome desktop environment..\c"
-	    arch-chroot /mnt pacman -S gnome --noconfirm &> /de/null || funerror "error:pacman error" 2
+        arch-chroot /mnt pacman -S gnome --noconfirm &> /de/null || funerror "error:pacman error" 2
         echo -e "..\c"
-	    arch-chroot /mnt systemctl enable gdm &> /dev/null
+        arch-chroot /mnt systemctl enable gdm &> /dev/null
         echo -e "..\c"
         echo -e "\033[32mDone\033[0m\n"
     fi
