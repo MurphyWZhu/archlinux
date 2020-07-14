@@ -83,10 +83,6 @@ then
     arch-chroot /mnt grub-install --target=x86_64-efi --efi-directory=/boot --bootloader-id=GRUB >> /dev/null
     arch-chroot /mnt grub-mkconfig -o /boot/grub/grub.cfg >> /dev/null
     echo "done."
-    #echo "umounting disks..."
-    #umount /mnt/boot
-    #umount /mnt
-    #echo "done."
 else
     echo "Installing and configuring grub...."
     arch-chroot /mnt pacman -S grub --noconfirm >> /dev/null
@@ -106,7 +102,7 @@ then
 Include = /etc/pacman.d/archlinuxcnlist
 EOF" | arch-chroot /mnt &> /dev/null
 
-    echo 'Server = https://mirrors.bfsu.edu.cn/archlinuxcn/$arch' >> /etc/pacman.d/archlinuxcnlist
+    echo 'Server = https://mirrors.bfsu.edu.cn/archlinuxcn/$arch' >> /mnt/etc/pacman.d/archlinuxcnlist
     arch-chroot /mnt pacman -Syu
     arch-chroot /mnt pacman -S archlinuxcn-keyring --noconfirm
 fi
