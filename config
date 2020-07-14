@@ -1,2 +1,3 @@
 ROOT_PASSWD="000000"
 HOST_NAME="karch"
+DISK="vda"

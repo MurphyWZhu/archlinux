@@ -23,21 +23,21 @@ echo "Your computer boot mode:${boot_mode}"
 echo "Disk Settings..."
 if [ $boot_mode = "uefi" ]
 then
-    parted -s /dev/vda mklabel gpt 
-    parted -s /dev/vda mkpart ESP fat32 1M 513M 
-    parted -s /dev/vda set 1 boot on 
-    parted -s /dev/vda mkpart primart ext4 513M 100%
-    mkfs.fat -F32 /dev/vda1 >> /dev/null
-    mkfs.ext4 /dev/vda2 >> /dev/null
-    mount /dev/vda2 /mnt
+    parted -s /dev/${DISK} mklabel gpt 
+    parted -s /dev/${DISK} mkpart ESP fat32 1M 513M 
+    parted -s /dev/${DISK} set 1 boot on 
+    parted -s /dev/${DISK} mkpart primart ext4 513M 100%
+    mkfs.fat -F32 /dev/${DISK}1 >> /dev/null
+    mkfs.ext4 /dev/${DISK}2 >> /dev/null
+    mount /dev/${DISK}2 /mnt
     mkdir /mnt/boot
-    mount /dev/vda1 /mnt/boot
+    mount /dev/${DISK}1 /mnt/boot
 else
-    parted -s /dev/vda mklabel msdos 
-    parted -s /dev/vda mkpart primary ext4 1M 100% 
-    parted -s /dev/vda set 1 boot on 
-    mkfs.ext4 /dev/vda1 >> /dev/null
-    mount /dev/vda1 /mnt
+    parted -s /dev/${DISK} mklabel msdos 
+    parted -s /dev/${DISK} mkpart primary ext4 1M 100% 
+    parted -s /dev/${DISK} set 1 boot on 
+    mkfs.ext4 /dev/${DISK}1 >> /dev/null
+    mount /dev/${DISK}1 /mnt
 fi
 echo "done."
 
@@ -90,7 +90,7 @@ then
 else
     echo "Installing and configuring grub...."
     arch-chroot /mnt pacman -S grub --noconfirm >> /dev/null
-    arch-chroot /mnt grub-install --target=i386-pc /dev/vda
+    arch-chroot /mnt grub-install --target=i386-pc /dev/${DISK}
     arch-chroot /mnt grub-mkconfig -o /boot/grub/grub.cfg
     echo "done."
     echo "umounting disks..."
