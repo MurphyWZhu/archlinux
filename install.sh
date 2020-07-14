@@ -23,14 +23,14 @@ echo "Your computer boot mode:${boot_mode}"
 echo -e "Disk Settings......\c"
 if [ $boot_mode = "uefi" ]
 then
-    parted -s /dev/${DISK} mklabel gpt && parted -s /dev/${DISK} mkpart ESP fat32 1M 513M && parted -s /dev/${DISK} set 1 boot on && parted -s /dev/${DISK} mkpart primart ext4 513M 100% && echo "Partition succeeded" || echo "error:Partition failure" && exit 2
+    parted -s /dev/${DISK} mklabel gpt && parted -s /dev/${DISK} mkpart ESP fat32 1M 513M && parted -s /dev/${DISK} set 1 boot on && parted -s /dev/${DISK} mkpart primart ext4 513M 100% || exit 2
     mkfs.fat -F32 /dev/${DISK}1 &> /dev/null
     mkfs.ext4 /dev/${DISK}2 &> /dev/null
     mount /dev/${DISK}2 /mnt
     mkdir /mnt/boot
     mount /dev/${DISK}1 /mnt/boot
 else
-    parted -s /dev/${DISK} mklabel msdos && parted -s /dev/${DISK} mkpart primary ext4 1M 100% && parted -s /dev/${DISK} set 1 boot on && echo "Partition succeeded" || echo "error:Partition failure" && exit 2
+    parted -s /dev/${DISK} mklabel msdos && parted -s /dev/${DISK} mkpart primary ext4 1M 100% && parted -s /dev/${DISK} set 1 boot on ||  exit 2
     mkfs.ext4 /dev/${DISK}1 &> /dev/null
     mount /dev/${DISK}1 /mnt
 fi
