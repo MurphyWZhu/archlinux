@@ -89,9 +89,9 @@ then
     echo -e "Installing and configuring grub.\c"
     arch-chroot /mnt pacman -S grub efibootmgr --noconfirm &> /dev/null || funerror "error:pacman error" 2
     echo -e "..\c"
-    arch-chroot /mnt grub-install --target=x86_64-efi --efi-directory=/boot --bootloader-id=GRUB &> /dev/null
+    arch-chroot /mnt grub-install --target=x86_64-efi --efi-directory=/boot --bootloader-id=GRUB &> /dev/null || funerror "error:grub-install error" 8
     echo -e "..\c"
-    arch-chroot /mnt grub-mkconfig -o /boot/grub/grub.cfg &> /dev/null
+    arch-chroot /mnt grub-mkconfig -o /boot/grub/grub.cfg &> /dev/null || funerror "error:grub-mkconfig error" 9
     echo -e "..\c"
     sleep 2
     echo -e "\033[32mDone\033[0m\n"
@@ -99,9 +99,9 @@ else
     echo -e "Installing and configuring grub.\c"
     arch-chroot /mnt pacman -S grub --noconfirm &> /dev/null || funerror "error:pacman error" 2
     echo -e "..\c"
-    arch-chroot /mnt grub-install --target=i386-pc /dev/${DISK} &> /dev/null
+    arch-chroot /mnt grub-install --target=i386-pc /dev/${DISK} &> /dev/null || funerror "error:grub-install error" 8
     echo -e "..\c"
-    arch-chroot /mnt grub-mkconfig -o /boot/grub/grub.cfg &> /dev/null
+    arch-chroot /mnt grub-mkconfig -o /boot/grub/grub.cfg &> /dev/null || funerror "error:grub-mkconfig error" 9
     echo -e "..\c"
     sleep 2
     echo -e "\033[32mDone\033[0m\n"
@@ -168,7 +168,7 @@ then
     echo "Your desktop environment of choice is ${DESKTOP_ENV}"
     NVIDIA=0
     INTEL=0
-    lspci | grep -i vga | grep -i nvidia
+    lspci | grep -i vga | grep -i nvidia >> /dev/null
     if [ $? -eq 0 ]
     then
         NVIDIA=1
@@ -179,7 +179,7 @@ then
 	sleep 2
         echo -e "\033[32mDone\033[0m\n"
     fi
-    lspci | grep -i vga | grep -i intel
+    lspci | grep -i vga | grep -i intel >> /dev/null
     if [ $? -eq 0 ]
     then
         INTEL=1
