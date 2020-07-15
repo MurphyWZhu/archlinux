@@ -1,9 +1,24 @@
+#Root password
 ROOT_PASSWD="000000"
+
+#Hostname
 HOST_NAME="karch"
+
+#Install disk
 DISK="vda"
+
+#desktop("none"|"xfce4"|"kde"|"gnome")
 DESKTOP_ENV="xfce4"
+
+#admin user and password
 ADMIN_USER="karch"
 ADMIN_USER_PASSWD="000000"
+
+#iptables settings
 ENABLE_IPTABLES="true"
+
+#china archlinux repo
 ARCHLINUXCN="true"
+
+#Install other packages
 OTHER_PACKAGES="neofetch yay firefox firefox-i18n-zh-cn"
