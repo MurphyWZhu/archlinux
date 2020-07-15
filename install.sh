@@ -32,7 +32,9 @@ fi
 echo -e ".\033[32mDone\033[0m\n"
 
 echo 'Server = https://mirrors.bfsu.edu.cn/archlinux/$repo/os/$arch
-Server = http://mirrors.tuna.tsinghua.edu.cn/archlinux/$repo/os/$arch' > /etc/pacman.d/mirrorlist
+Server = https://mirrors.tuna.tsinghua.edu.cn/archlinux/$repo/os/$arch
+Server = https://mirrors.ustc.edu.cn/archlinux/$repo/os/$arch
+Server = https://mirror.bjtu.edu.cn/disk3/archlinux/$repo/os/$arch' > /etc/pacman.d/mirrorlist
 
 echo -e "Archlinux base packages installing.\c"
 pacstrap /mnt base base-devel linux linux-firmware vim networkmanager >> /dev/null || funerror "error:pacman error" 2
