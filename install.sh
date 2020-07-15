@@ -39,6 +39,7 @@ Server = https://mirror.bjtu.edu.cn/disk3/archlinux/$repo/os/$arch' > /etc/pacma
 echo -e "Archlinux base packages installing.\c"
 pacstrap /mnt base base-devel linux linux-firmware vim networkmanager &> /dev/null || funerror "error:pacman error" 2
 echo -e "..\c"
+sleep 2
 echo -e "\033[32mDone\033[0m\n"
 
 genfstab -U /mnt >> /mnt/etc/fstab
@@ -79,6 +80,7 @@ then
     arch-chroot /mnt pacman -S intel-ucode --noconfirm >> /dev/null || funerror "error:pacman error" 2
     echo -e "..\c"
     echo -e "\033[32mDone\033[0m\n"
+    sleep 2
 fi
 
 
@@ -91,6 +93,7 @@ then
     echo -e "..\c"
     arch-chroot /mnt grub-mkconfig -o /boot/grub/grub.cfg &> /dev/null
     echo -e "..\c"
+    sleep 2
     echo -e "\033[32mDone\033[0m\n"
 else
     echo -e "Installing and configuring grub.\c"
@@ -100,6 +103,7 @@ else
     echo -e "..\c"
     arch-chroot /mnt grub-mkconfig -o /boot/grub/grub.cfg &> /dev/null
     echo -e "..\c"
+    sleep 2
     echo -e "\033[32mDone\033[0m\n"
 fi
 
@@ -153,6 +157,7 @@ EOF" | arch-chroot /mnt &> /dev/null
     echo -e "..\c"
     arch-chroot /mnt systemctl enable iptables ip6tables &> /dev/null
     echo -e "..\c"
+    sleep 2
     echo -e "\033[32mDone\033[0m\n"
 fi
 
@@ -171,6 +176,7 @@ then
         echo -e "Installing Nvidia drive.\c"
         arch-chroot /mnt pacman -S nvidia --noconfirm &> /dev/null || funerror "error:pacman error" 2
         echo -e "..\c"
+	sleep 2
         echo -e "\033[32mDone\033[0m\n"
     fi
     lspci | grep -i vga | grep -i intel
@@ -181,6 +187,7 @@ then
         echo -e "Installing Intel drive.\c"
         arch-chroot /mnt pacman -S mesa vulkan-intel libva-intel-driver intel-media-driver --noconfirm &> /dev/null || funerror "error:pacman error" 2
         echo -e "..\c"
+	sleep 2
         echo -e "\033[32mDone\033[0m\n"
     fi
 
@@ -190,16 +197,19 @@ then
         echo -e "So,Installing nvidia-prime..\c"
         arch-chroot /mnt pacman -S nvidia-prime --noconfirm &> /dev/null || funerror "error:pacman error" 2
         echo -e "..\c"
+	sleep 2
         echo -e "\033[32mDone\033[0m\n"
     fi
     echo -e "Install xorg..\c"
     arch-chroot /mnt pacman -S xorg --noconfirm &> /dev/null || funerror "error:pacman error" 2
     echo -e "..\c"
+    sleep 2
     echo -e "\033[32mDone\033[0m\n"
 
     echo -e "Install chinese fonts..\c"
     arch-chroot /mnt pacman -S wqy-bitmapfont wqy-microhei wqy-zenhei --noconfirm >> /dev/null || funerror "error:pacman error" 2
     echo -e "..\c"
+    sleep 2
     echo -e "\033[32mDone\033[0m\n"
     echo "echo 'LANG=zh_CN.UTF-8
 LC_COLLATE=C' > /etc/locale.conf" | arch-chroot /mnt &> /dev/null
@@ -212,6 +222,7 @@ LC_COLLATE=C' > /etc/locale.conf" | arch-chroot /mnt &> /dev/null
         echo -e "..\c"
         arch-chroot /mnt systemctl enable lightdm &> /dev/null
         echo -e "..\c"
+	sleep 2
         echo -e "\033[32mDone\033[0m\n"
     fi
 
@@ -225,6 +236,7 @@ LC_COLLATE=C' > /etc/locale.conf" | arch-chroot /mnt &> /dev/null
         echo -e "..\c"
         arch-chroot /mnt systemctl enable sddm &> /dev/null
         echo -e "..\c"
+	sleep 2
         echo -e "\033[32mDone\033[0m\n"
     fi
 
@@ -236,6 +248,7 @@ LC_COLLATE=C' > /etc/locale.conf" | arch-chroot /mnt &> /dev/null
         echo -e "..\c"
         arch-chroot /mnt systemctl enable gdm &> /dev/null
         echo -e "..\c"
+	sleep 2
         echo -e "\033[32mDone\033[0m\n"
     fi
 fi
@@ -246,6 +259,7 @@ then
     arch-chroot /mnt pacman -S haveged --noconfirm &> /dev/null || funerror "error:pacman error" 2
     echo -e "..\c"
     arch-chroot /mnt systemctl enable haveged &> /dev/null
+    sleep 1
     echo -e "..\c"
     arch-chroot /mnt rm -rf /etc/pacman.d/gnupg &> /dev/null
     arch-chroot /mnt pacman-key --init &> /dev/null
@@ -267,6 +281,7 @@ fi
 
 echo -e "Installing other packages......\c"
 arch-chroot /mnt pacman -S ${OTHER_PACKAGES} --noconfirm &> /dev/null || funerror "error:pacman error" 2
+sleep 3
 echo -e "\033[32mDone\033[0m\n"
 
 if [ ${boot_mode} = "uefi" ]
