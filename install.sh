@@ -6,11 +6,11 @@ funerror(){
     exit $2
 }
 setfont /usr/share/kbd/consolefonts/iso01-12x22.psfu.gz
-ping -c 4 blog.jinjiang.fun >> /dev/null || funerror "error:Network Error!" 1
+ping -c 4 blog.jinjiang.fun &> /dev/null || funerror "error:Network Error!" 1
 
-timedatectl set-ntp true
+timedatectl set-ntp true &> /dev/null
 
-ls /sys/firmware/efi/efivars >> /dev/null && boot_mode="uefi" || boot_mode="bios"
+ls /sys/firmware/efi/efivars &> /dev/null && boot_mode="uefi" || boot_mode="bios"
 
 echo "Your computer boot mode:${boot_mode}"
 echo -e "Disk Settings.\c"
@@ -37,7 +37,7 @@ Server = https://mirrors.ustc.edu.cn/archlinux/$repo/os/$arch
 Server = https://mirror.bjtu.edu.cn/disk3/archlinux/$repo/os/$arch' > /etc/pacman.d/mirrorlist
 
 echo -e "Archlinux base packages installing.\c"
-pacstrap /mnt base base-devel linux linux-firmware vim networkmanager >> /dev/null || funerror "error:pacman error" 2
+pacstrap /mnt base base-devel linux linux-firmware vim networkmanager &> /dev/null || funerror "error:pacman error" 2
 echo -e "..\c"
 echo -e "\033[32mDone\033[0m\n"
 
@@ -232,7 +232,7 @@ LC_COLLATE=C' > /etc/locale.conf" | arch-chroot /mnt &> /dev/null
     if [ ${DESKTOP_ENV} = 'gnome' ]
     then
         echo -e "Installing gnome desktop environment..\c"
-        arch-chroot /mnt pacman -S gnome --noconfirm &> /de/null || funerror "error:pacman error" 2
+        arch-chroot /mnt pacman -S gnome --noconfirm &> /dev/null || funerror "error:pacman error" 2
         echo -e "..\c"
         arch-chroot /mnt systemctl enable gdm &> /dev/null
         echo -e "..\c"
