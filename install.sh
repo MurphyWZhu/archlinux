@@ -31,8 +31,7 @@ else
 fi
 echo -e ".\033[32mDone\033[0m\n"
 
-echo 'Server = https://mirrors.aliyun.com/archlinux/$repo/os/$arch
-Server = https://mirrors.bfsu.edu.cn/archlinux/$repo/os/$arch
+echo 'Server = https://mirrors.bfsu.edu.cn/archlinux/$repo/os/$arch
 Server = https://mirrors.tuna.tsinghua.edu.cn/archlinux/$repo/os/$arch
 Server = https://mirrors.ustc.edu.cn/archlinux/$repo/os/$arch
 Server = https://mirror.bjtu.edu.cn/disk3/archlinux/$repo/os/$arch' > /etc/pacman.d/mirrorlist
