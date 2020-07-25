@@ -172,15 +172,15 @@ LC_COLLATE=C' > /etc/locale.conf" | arch-chroot /mnt &> /dev/null
     if [ ${DESKTOP_ENV} = "kde" ]
     then
         dialog --title "Installing" --infobox "Installing kde, please wait" 12 35
-        arch-chroot /mnt pacman -S plasma dolphin konsole --noconfirm 1> /dev/null 2> ./errorfile || funerror "pacman error" 2
-        arch-chroot /mnt pacman -S appstream appstream-qt archlinux-appstream-data --noconfirm 1> /dev/null 2> ./errorfile || funerror "pacman error" 2
+        arch-chroot /mnt pacman -S plasma dolphin konsole --noconfirm 1> /dev/null 2> ./errorfile || funerror "pacmanerror" 2
+        arch-chroot /mnt pacman -S appstream appstream-qt archlinux-appstream-data --noconfirm 1> /dev/null 2> ./errorfile || funerror "pacmanerror" 2
         arch-chroot /mnt systemctl enable sddm &> /dev/null
     fi
 
     if [ ${DESKTOP_ENV} = 'gnome' ]
     then
         dialog --title "Installing" --infobox "Installing gnome, please wait" 12 35
-        arch-chroot /mnt pacman -S gnome --noconfirm 1> /dev/null 2> ./errorfile || funerror "pacman error" 2
+        arch-chroot /mnt pacman -S gnome --noconfirm 1> /dev/null 2> ./errorfile || funerror "pacmanerror" 2
         arch-chroot /mnt systemctl enable gdm &> /dev/null
     fi
 fi
@@ -189,7 +189,7 @@ dialog --title "ARCHLINUXCN config" --yesno "Enable archlinuxcn?" 12 35 && ARCHL
 if [ ${ARCHLINUXCN} = "true" ]
 then
     dialog --title "Configuring" --infobox "Configuring archlinuxcn, please wait" 12 35
-    arch-chroot /mnt pacman -S haveged --noconfirm 1> /dev/null 2> ./errorfile || funerror "pacman error" 2
+    arch-chroot /mnt pacman -S haveged --noconfirm 1> /dev/null 2> ./errorfile || funerror "pacmanerror" 2
     arch-chroot /mnt systemctl enable haveged &> /dev/null
     arch-chroot /mnt rm -rf /etc/pacman.d/gnupg &> /dev/null
     arch-chroot /mnt pacman-key --init &> /dev/null
@@ -201,7 +201,7 @@ EOF" | arch-chroot /mnt &> /dev/null
 
     echo 'Server = https://mirrors.bfsu.edu.cn/archlinuxcn/$arch' >> /mnt/etc/pacman.d/archlinuxcnlist
     arch-chroot /mnt pacman -Syu &> /dev/null
-    arch-chroot /mnt pacman -S archlinuxcn-keyring --noconfirm 1> /dev/null 2> ./errorfile || funerror "pacman error" 2
+    arch-chroot /mnt pacman -S archlinuxcn-keyring --noconfirm 1> /dev/null 2> ./errorfile || funerror "pacmanerror" 2
 fi
 
 if [ ${boot_mode} = "uefi" ]
