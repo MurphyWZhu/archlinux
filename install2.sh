@@ -55,21 +55,22 @@ ROOT_PASSWD=$(dialog --output-fd 1 --title "Password_Config" --no-cancel --input
 arch-chroot /mnt chpasswd <<EOF
 root:${ROOT_PASSWD}
 EOF
-echo aaaaaa
-sleep 5
 tmp1=$(cat /proc/cpuinfo | grep name | grep Intel >> /dev/null)
 if [ $? -eq 0 ]
 then
+    dialog --title "Installing" --infobox "Installing intel-ucode, please wait" 12 35
     arch-chroot /mnt pacman -S intel-ucode --noconfirm 1> /dev/null 2> ./errorfile || funerror "pacmanerror" 2
 fi
 
 
 if [ $boot_mode = "uefi" ]
-then
+then    
+    dialog --title "Installing" --infobox "Installing and Configuring GRUB, please wait" 12 35
     arch-chroot /mnt pacman -S grub efibootmgr --noconfirm 1> /dev/null 2> ./errorfile || funerror "pacmanerror" 2
     arch-chroot /mnt grub-install --target=x86_64-efi --efi-directory=/boot --bootloader-id=GRUB 1> /dev/null 2> ./errorfile || funerror "grub-installerror" 8
     arch-chroot /mnt grub-mkconfig -o /boot/grub/grub.cfg 1> /dev/null 2> ./errorfile || funerror "grub-mkconfigerror" 9
 else
+    dialog --title "Installing" --infobox "Installing and Configuring GRUB, please wait" 12 35
     arch-chroot /mnt pacman -S grub --noconfirm 1> /dev/null 2> ./errorfile || funerror "pacmanerror" 2
     arch-chroot /mnt grub-install --target=i386-pc /dev/${DISK} 1> /dev/null 2> ./errorfile || funerror "grub-installerror" 8
     arch-chroot /mnt grub-mkconfig -o /boot/grub/grub.cfg 1> /dev/null 2> errorfile || funerror "grub-mkconfigerror" 9
@@ -162,7 +163,7 @@ then
 LC_COLLATE=C" > /mnt/etc/locale.conf
 
 
-    if [ ${DESKTOP_ENV} = "xfce4" ]
+    if [ ${DESKTOP_ENV} = "2" ]
     then
         dialog --title "Installing" --infobox "Installing xfce4, please wait" 12 35
         arch-chroot /mnt pacman -S xfce4 xfce4-goodies lightdm lightdm-gtk-greeter lightdm-gtk-greeter-settings network-manager-applet pavucontrol pulseaudio --noconfirm 1> /dev/null 2> ./errorfile || funerror "pacmanerror" 2
@@ -170,7 +171,7 @@ LC_COLLATE=C" > /mnt/etc/locale.conf
     fi
 
 
-    if [ ${DESKTOP_ENV} = "kde" ]
+    if [ ${DESKTOP_ENV} = "3" ]
     then
         dialog --title "Installing" --infobox "Installing kde, please wait" 12 35
         arch-chroot /mnt pacman -S plasma dolphin konsole --noconfirm 1> /dev/null 2> ./errorfile || funerror "pacmanerror" 2
@@ -178,7 +179,7 @@ LC_COLLATE=C" > /mnt/etc/locale.conf
         arch-chroot /mnt systemctl enable sddm &> /dev/null
     fi
 
-    if [ ${DESKTOP_ENV} = 'gnome' ]
+    if [ ${DESKTOP_ENV} = '4' ]
     then
         dialog --title "Installing" --infobox "Installing gnome, please wait" 12 35
         arch-chroot /mnt pacman -S gnome --noconfirm 1> /dev/null 2> ./errorfile || funerror "pacmanerror" 2
@@ -195,10 +196,10 @@ then
     arch-chroot /mnt rm -rf /etc/pacman.d/gnupg &> /dev/null
     arch-chroot /mnt pacman-key --init &> /dev/null
     arch-chroot /mnt pacman-key --populate archlinux &> /dev/null
-    echo "cat >> /etc/pacman.conf <<EOF
+    cat >> /mnt/etc/pacman.conf <<EOF
 [archlinuxcn]
 Include = /etc/pacman.d/archlinuxcnlist
-EOF" | arch-chroot /mnt &> /dev/null
+EOF
 
     echo 'Server = https://mirrors.bfsu.edu.cn/archlinuxcn/$arch' >> /mnt/etc/pacman.d/archlinuxcnlist
     arch-chroot /mnt pacman -Syu &> /dev/null
