@@ -12,7 +12,7 @@ timedatectl set-ntp true &> /dev/null
 ls /sys/firmware/efi/efivars &> /dev/null && boot_mode="uefi" || boot_mode="bios"
 DISK_NUM=$(dialog --output-fd 1 --title "Select a Disk" --menu "Select a Disk" 12 35 5 $(lsblk | grep disk | awk '{print(FNR,$1)}' | xargs))
 DISK=$(lsblk | grep disk | awk '{print($1)}' | sed -n ${DISK_NUM}p)
-dialog --title "Warning" --yesno "use this script to empty the installation disk" || exit 0
+dialog --title "Warning" --yesno "use this script to empty the installation disk" 12 35 || exit 0
 if [ $boot_mode = "uefi" ]
 then
     parted -s /dev/${DISK} mklabel gpt 2> ./errorfile && parted -s /dev/${DISK} mkpart ESP fat32 1M 513M 2> ./errorfile && parted -s /dev/${DISK} set 1 boot on 2> ./errorfile && parted -s /dev/${DISK} mkpart primart ext4 513M 100% 2> ./errorfile || funerror "partederror" 3
@@ -46,7 +46,7 @@ arch-chroot /mnt locale-gen >> /dev/null
 echo -e "..\c"
 echo "echo 'LANG=en_US.UTF-8' >> /etc/locale.conf" | arch-chroot /mnt &> /dev/null
 
-HOST_NAME=$(dialog --output-fd 1 --title --no-cancel "Hostname Config" --inputbox "Hostname:" 12 35)
+HOST_NAME=$(dialog --output-fd 1 --title "Hostname_Config" --no-cancel  --inputbox "Hostname:" 12 35)
 echo "echo '${HOST_NAME}' >> /etc/hostname" | arch-chroot /mnt &> /dev/null
 echo "echo '127.0.0.1    localhost
 ::1    localhost
@@ -54,7 +54,7 @@ echo "echo '127.0.0.1    localhost
 echo -e "..\c"
 arch-chroot /mnt systemctl enable NetworkManager &> /dev/null 
 
-ROOT_PASSWD=$(dialog --output-fd 1 --title --no-cancel "Password Config" --inputbox "Root password:" 12 35)
+ROOT_PASSWD=$(dialog --output-fd 1 --title "Password_Config" --no-cancel --inputbox "Root password:" 12 35)
 echo "echo "root:${ROOT_PASSWD}" | chpasswd" | arch-chroot /mnt &> /dev/null
 
 
@@ -77,14 +77,14 @@ else
 fi
 
 
-ADMIN_USER=$(dialog --output-fd 1 --title --no-cancel "User Config" --inputbox "User name:" 12 35)
+ADMIN_USER=$(dialog --output-fd 1 --title "User_Config" --no-cancel --inputbox "User name:" 12 35)
 arch-chroot /mnt useradd -m -G wheel ${ADMIN_USER}
 
-ADMIN_USER_PASSWD=$(dialog --output-fd 1 --title --no-cancel "User Config" --inputbox "User password:" 12 35)
+ADMIN_USER_PASSWD=$(dialog --output-fd 1 --title "User_Config" --no-cancel --inputbox "User password:" 12 35)
 echo "echo '${ADMIN_USER}:${ADMIN_USER_PASSWD}' | chpasswd" | arch-chroot /mnt &> /dev/null
 arch-chroot /mnt sed -i "s/# %wheel ALL=(ALL) ALL/%wheel ALL=(ALL) ALL/g" /etc/sudoers
 
-dialog --title "Iptables config" --yesno "Enable Iptables?" 12 35 && ENABLE_IPTABLES="true" || ENABLE_IPTABLES="false"
+dialog --title "Iptables_config" --yesno "Enable Iptables?" 12 35 && ENABLE_IPTABLES="true" || ENABLE_IPTABLES="false"
 if [ ${ENABLE_IPTABLES} = "true" ]
 then
     echo "cat > /etc/iptables/iptables.rules <<EOF
@@ -130,7 +130,7 @@ fi
 
 
 
-DISK_NUM=$(dialog --output-fd 1 --title "Select a Disk" --menu "Select a Disk" 12 35 5 1 no-desktop 2 xfce 3 kde 4 gnome)
+DESKTOP_ENV=$(dialog --output-fd 1 --title "Select_Desktop" --menu "Select a Desktop" 12 35 5 1 no-desktop 2 xfce 3 kde 4 gnome)
 if [ ${DESKTOP_ENV} != "1" ]
 then
     dialog --title "Installing" --infobox "Installing GPU drive, please wait" 12 35
@@ -185,7 +185,7 @@ LC_COLLATE=C' > /etc/locale.conf" | arch-chroot /mnt &> /dev/null
     fi
 fi
 
-dialog --title "ARCHLINUXCN config" --yesno "Enable archlinuxcn?" 12 35 && ARCHLINUXCN="true" || ARCHLINUXCN="false"
+dialog --title "ARCHLINUXCN_config" --yesno "Enable archlinuxcn?" 12 35 && ARCHLINUXCN="true" || ARCHLINUXCN="false"
 if [ ${ARCHLINUXCN} = "true" ]
 then
     dialog --title "Configuring" --infobox "Configuring archlinuxcn, please wait" 12 35
