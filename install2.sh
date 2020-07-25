@@ -36,28 +36,28 @@ pacstrap /mnt base base-devel linux linux-firmware vim networkmanager 1> /dev/nu
 genfstab -U /mnt >> /mnt/etc/fstab
 arch-chroot /mnt ln -sf /usr/share/zoneinfo/Asia/Shanghai /etc/localtime
 arch-chroot /mnt hwclock --systohc
-echo "echo 'en_US.UTF-8 UTF-8
+echo 'en_US.UTF-8 UTF-8
 zh_CN.UTF-8 UTF-8
 zh_TW.UTF-8 UTF-8
-zh_HK.UTF-8 UTF-8' >> /etc/locale.gen" | arch-chroot /mnt &> /dev/null
+zh_HK.UTF-8 UTF-8' >> /mnt/etc/locale.gen
 
-echo -e "..\c"
 arch-chroot /mnt locale-gen >> /dev/null
-echo -e "..\c"
-echo "echo 'LANG=en_US.UTF-8' >> /etc/locale.conf" | arch-chroot /mnt &> /dev/null
+echo 'LANG=en_US.UTF-8' >> /mnt/etc/locale.conf
 
 HOST_NAME=$(dialog --output-fd 1 --title "Hostname_Config" --no-cancel  --inputbox "Hostname:" 12 35)
-echo "echo '${HOST_NAME}' >> /etc/hostname" | arch-chroot /mnt &> /dev/null
-echo "echo '127.0.0.1    localhost
+echo "${HOST_NAME}" >> /mnt/etc/hostname
+echo "127.0.0.1    localhost
 ::1    localhost
-127.0.1.1    ${HOST_NAME}.localdomain    ${HOST_NAME}' >> /etc/hosts" | arch-chroot /mnt &> /dev/null
-echo -e "..\c"
+127.0.1.1    ${HOST_NAME}.localdomain    ${HOST_NAME}" >> /mnt/etc/hosts
 arch-chroot /mnt systemctl enable NetworkManager &> /dev/null 
 
 ROOT_PASSWD=$(dialog --output-fd 1 --title "Password_Config" --no-cancel --inputbox "Root password:" 12 35)
 echo "echo "root:${ROOT_PASSWD}" | chpasswd" | arch-chroot /mnt &> /dev/null
-
-
+arch-chroot chpasswd << EOF
+root:${ROOT_PASSWD}
+EOF
+echo aaaaaa
+sleep 5
 cat /proc/cpuinfo | grep name | grep Intel >> /dev/null
 if [ $? -eq 0 ]
 then
