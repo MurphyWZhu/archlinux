@@ -5,7 +5,7 @@ funerror(){
     exit $2
 }
 setfont /usr/share/kbd/consolefonts/iso01-12x22.psfu.gz
-ping -c 4 blog.jinjiang.fun 1> /dev/null 2> ./errorfile || funerror "Network Error!" 1
+ping -c 4 blog.jinjiang.fun 1> /dev/null 2> ./errorfile || funerror "NetworkError!" 1
 
 timedatectl set-ntp true &> /dev/null
 
@@ -15,13 +15,13 @@ DISK=$(lsblk | grep disk | awk '{print($1)}' | sed -n ${DISK_NUM}p)
 dialog --title "Warning" --yesno "use this script to empty the installation disk" || exit 0
 if [ $boot_mode = "uefi" ]
 then
-    parted -s /dev/${DISK} mklabel gpt 2> ./errorfile && parted -s /dev/${DISK} mkpart ESP fat32 1M 513M 2> ./errorfile && parted -s /dev/${DISK} set 1 boot on 2> ./errorfile && parted -s /dev/${DISK} mkpart primart ext4 513M 100% 2> ./errorfile || funerror "parted error" 3
-    mkfs.fat -F32 /dev/${DISK}1 1> /dev/null 2> ./errorfile || funerror "mkfs error" 4
-    mkfs.ext4 /dev/${DISK}2 1> /dev/null 2> ./errorfile || funerror "mkfs error" 4
+    parted -s /dev/${DISK} mklabel gpt 2> ./errorfile && parted -s /dev/${DISK} mkpart ESP fat32 1M 513M 2> ./errorfile && parted -s /dev/${DISK} set 1 boot on 2> ./errorfile && parted -s /dev/${DISK} mkpart primart ext4 513M 100% 2> ./errorfile || funerror "partederror" 3
+    mkfs.fat -F32 /dev/${DISK}1 1> /dev/null 2> ./errorfile || funerror "mkfserror" 4
+    mkfs.ext4 /dev/${DISK}2 1> /dev/null 2> ./errorfile || funerror "mkfserror" 4
     mount /dev/${DISK}2 /mnt && mkdir /mnt/boot && mount /dev/${DISK}1 /mnt/boot
 else
-    parted -s /dev/${DISK} mklabel msdos 2> ./errorfile && parted -s /dev/${DISK} mkpart primary ext4 1M 100% 2> ./errorfile && parted -s /dev/${DISK} set 1 boot on 2> ./errorfile ||  funerror "parted error" 3
-    mkfs.ext4 /dev/${DISK}1 1> /dev/null 2> ./errorfile || funerror "mkfs error" 4
+    parted -s /dev/${DISK} mklabel msdos 2> ./errorfile && parted -s /dev/${DISK} mkpart primary ext4 1M 100% 2> ./errorfile && parted -s /dev/${DISK} set 1 boot on 2> ./errorfile ||  funerror "partederror" 3
+    mkfs.ext4 /dev/${DISK}1 1> /dev/null 2> ./errorfile || funerror "mkfserror" 4
     mount /dev/${DISK}1 /mnt
 fi
 
@@ -31,7 +31,7 @@ Server = https://mirrors.ustc.edu.cn/archlinux/$repo/os/$arch
 Server = https://mirror.bjtu.edu.cn/disk3/archlinux/$repo/os/$arch' > /etc/pacman.d/mirrorlist
 
 dialog --title "Installing" --infobox "Installation in progress, please wait" 12 35
-pacstrap /mnt base base-devel linux linux-firmware vim networkmanager 1> /dev/null 2> ./errorfile || funerror "pacman error" 2
+pacstrap /mnt base base-devel linux linux-firmware vim networkmanager 1> /dev/null 2> ./errorfile || funerror "pacmanerror" 2
 
 genfstab -U /mnt >> /mnt/etc/fstab
 arch-chroot /mnt ln -sf /usr/share/zoneinfo/Asia/Shanghai /etc/localtime
@@ -61,19 +61,19 @@ echo "echo "root:${ROOT_PASSWD}" | chpasswd" | arch-chroot /mnt &> /dev/null
 cat /proc/cpuinfo | grep name | grep Intel >> /dev/null
 if [ $? -eq 0 ]
 then
-    arch-chroot /mnt pacman -S intel-ucode --noconfirm 1> /dev/null 2> ./errorfile || funerror "error:pacman error" 2
+    arch-chroot /mnt pacman -S intel-ucode --noconfirm 1> /dev/null 2> ./errorfile || funerror "pacmanerror" 2
 fi
 
 
 if [ $boot_mode = "uefi" ]
 then
-    arch-chroot /mnt pacman -S grub efibootmgr --noconfirm 1> /dev/null 2> ./errorfile || funerror "error:pacman error" 2
-    arch-chroot /mnt grub-install --target=x86_64-efi --efi-directory=/boot --bootloader-id=GRUB 1> /dev/null 2> ./errorfile || funerror "error:grub-install error" 8
-    arch-chroot /mnt grub-mkconfig -o /boot/grub/grub.cfg 1> /dev/null 2> ./errorfile || funerror "error:grub-mkconfig error" 9
+    arch-chroot /mnt pacman -S grub efibootmgr --noconfirm 1> /dev/null 2> ./errorfile || funerror "pacmanerror" 2
+    arch-chroot /mnt grub-install --target=x86_64-efi --efi-directory=/boot --bootloader-id=GRUB 1> /dev/null 2> ./errorfile || funerror "grub-installerror" 8
+    arch-chroot /mnt grub-mkconfig -o /boot/grub/grub.cfg 1> /dev/null 2> ./errorfile || funerror "grub-mkconfigerror" 9
 else
-    arch-chroot /mnt pacman -S grub --noconfirm 1> /dev/null 2> ./errorfile || funerror "error:pacman error" 2
-    arch-chroot /mnt grub-install --target=i386-pc /dev/${DISK} 1> /dev/null 2> ./errorfile || funerror "error:grub-install error" 8
-    arch-chroot /mnt grub-mkconfig -o /boot/grub/grub.cfg 1> /dev/null 2> errorfile || funerror "error:grub-mkconfig error" 9
+    arch-chroot /mnt pacman -S grub --noconfirm 1> /dev/null 2> ./errorfile || funerror "pacmanerror" 2
+    arch-chroot /mnt grub-install --target=i386-pc /dev/${DISK} 1> /dev/null 2> ./errorfile || funerror "grub-installerror" 8
+    arch-chroot /mnt grub-mkconfig -o /boot/grub/grub.cfg 1> /dev/null 2> errorfile || funerror "grub-mkconfigerror" 9
 fi
 
 
@@ -140,23 +140,23 @@ then
     if [ $? -eq 0 ]
     then
         NVIDIA=1
-        arch-chroot /mnt pacman -S nvidia --noconfirm 1> /dev/null 2> ./errorfile || funerror "pacman error" 2
+        arch-chroot /mnt pacman -S nvidia --noconfirm 1> /dev/null 2> ./errorfile || funerror "pacmanerror" 2
     fi
     lspci | grep -i vga | grep -i intel >> /dev/null
     if [ $? -eq 0 ]
     then
         INTEL=1
-        arch-chroot /mnt pacman -S mesa vulkan-intel libva-intel-driver intel-media-driver --noconfirm 1> /dev/null 2> ./errorfile || funerror "pacman error" 2
+        arch-chroot /mnt pacman -S mesa vulkan-intel libva-intel-driver intel-media-driver --noconfirm 1> /dev/null 2> ./errorfile || funerror "pacmanerror" 2
     fi
 
     if [ ${NVIDIA} -eq 1 -a ${INTEL} -eq 1 ]
     then
-        arch-chroot /mnt pacman -S nvidia-prime --noconfirm 1> /dev/null 2> ./errorfile || funerror "pacman error" 2
+        arch-chroot /mnt pacman -S nvidia-prime --noconfirm 1> /dev/null 2> ./errorfile || funerror "pacmanerror" 2
     fi
     dialog --title "Installing" --infobox "Installing xorg, please wait" 12 35
-    arch-chroot /mnt pacman -S xorg --noconfirm 1> /dev/null 2> ./errorfile || funerror "pacman error" 2
+    arch-chroot /mnt pacman -S xorg --noconfirm 1> /dev/null 2> ./errorfile || funerror "pacmanerror" 2
     dialog --title "Installing" --infobox "Installing Chinese fonts, please wait" 12 35
-    arch-chroot /mnt pacman -S wqy-bitmapfont wqy-microhei wqy-zenhei --noconfirm 1> /dev/null 2> ./errorfile || funerror "pacman error" 2
+    arch-chroot /mnt pacman -S wqy-bitmapfont wqy-microhei wqy-zenhei --noconfirm 1> /dev/null 2> ./errorfile || funerror "pacmanerror" 2
     echo "echo 'LANG=zh_CN.UTF-8
 LC_COLLATE=C' > /etc/locale.conf" | arch-chroot /mnt &> /dev/null
 
@@ -164,7 +164,7 @@ LC_COLLATE=C' > /etc/locale.conf" | arch-chroot /mnt &> /dev/null
     if [ ${DESKTOP_ENV} = "xfce4" ]
     then
         dialog --title "Installing" --infobox "Installing xfce4, please wait" 12 35
-        arch-chroot /mnt pacman -S xfce4 xfce4-goodies lightdm lightdm-gtk-greeter lightdm-gtk-greeter-settings network-manager-applet pavucontrol pulseaudio --noconfirm 1> /dev/null 2> ./errorfile || funerror "pacman error" 2
+        arch-chroot /mnt pacman -S xfce4 xfce4-goodies lightdm lightdm-gtk-greeter lightdm-gtk-greeter-settings network-manager-applet pavucontrol pulseaudio --noconfirm 1> /dev/null 2> ./errorfile || funerror "pacmanerror" 2
         arch-chroot /mnt systemctl enable lightdm &> /dev/null
     fi
 

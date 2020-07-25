@@ -2,7 +2,6 @@
 
 source config
 funerror(){
-    dialog --title $1 --textbox errorfile 20 60
     exit $2
 }
 setfont /usr/share/kbd/consolefonts/iso01-12x22.psfu.gz
