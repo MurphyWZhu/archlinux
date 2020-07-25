@@ -52,13 +52,12 @@ echo "127.0.0.1    localhost
 arch-chroot /mnt systemctl enable NetworkManager &> /dev/null 
 
 ROOT_PASSWD=$(dialog --output-fd 1 --title "Password_Config" --no-cancel --inputbox "Root password:" 12 35)
-echo "echo "root:${ROOT_PASSWD}" | chpasswd" | arch-chroot /mnt &> /dev/null
-arch-chroot chpasswd << EOF
+arch-chroot /mnt chpasswd <<EOF
 root:${ROOT_PASSWD}
 EOF
 echo aaaaaa
 sleep 5
-cat /proc/cpuinfo | grep name | grep Intel >> /dev/null
+tmp1=$(cat /proc/cpuinfo | grep name | grep Intel >> /dev/null)
 if [ $? -eq 0 ]
 then
     arch-chroot /mnt pacman -S intel-ucode --noconfirm 1> /dev/null 2> ./errorfile || funerror "pacmanerror" 2
@@ -81,13 +80,15 @@ ADMIN_USER=$(dialog --output-fd 1 --title "User_Config" --no-cancel --inputbox "
 arch-chroot /mnt useradd -m -G wheel ${ADMIN_USER}
 
 ADMIN_USER_PASSWD=$(dialog --output-fd 1 --title "User_Config" --no-cancel --inputbox "User password:" 12 35)
-echo "echo '${ADMIN_USER}:${ADMIN_USER_PASSWD}' | chpasswd" | arch-chroot /mnt &> /dev/null
+arch-chroot /mnt chpasswd <<EOF
+${ADMIN_USER}:${ADMIN_USER_PASSWD}
+EOF
 arch-chroot /mnt sed -i "s/# %wheel ALL=(ALL) ALL/%wheel ALL=(ALL) ALL/g" /etc/sudoers
 
 dialog --title "Iptables_config" --yesno "Enable Iptables?" 12 35 && ENABLE_IPTABLES="true" || ENABLE_IPTABLES="false"
 if [ ${ENABLE_IPTABLES} = "true" ]
 then
-    echo "cat > /etc/iptables/iptables.rules <<EOF
+    cat > /mnt/etc/iptables/iptables.rules <<EOF
 *filter
 :INPUT DROP [0:0]
 :FORWARD DROP [0:0]
@@ -104,9 +105,9 @@ then
 -A INPUT -p tcp -j REJECT --reject-with tcp-reset
 -A INPUT -j REJECT --reject-with icmp-proto-unreachable
 COMMIT
-EOF" | arch-chroot /mnt &> /dev/null
+EOF
 
-    echo "cat > /etc/iptables/ip6tables.rules <<EOF
+    cat > /mnt/etc/iptables/ip6tables.rules <<EOF
 *filter
 :INPUT DROP [0:0]
 :FORWARD DROP [0:0]
@@ -124,7 +125,7 @@ EOF" | arch-chroot /mnt &> /dev/null
 -A INPUT -j REJECT --reject-with icmp6-adm-prohibited
 -A INPUT -p ipv6-icmp -m icmp6 --icmpv6-type 128 -m conntrack --ctstate NEW -j ACCEPT
 COMMIT
-EOF" | arch-chroot /mnt &> /dev/null
+EOF
     arch-chroot /mnt systemctl enable iptables ip6tables &> /dev/null
 fi
 
@@ -136,13 +137,13 @@ then
     dialog --title "Installing" --infobox "Installing GPU drive, please wait" 12 35
     NVIDIA=0
     INTEL=0
-    lspci | grep -i vga | grep -i nvidia >> /dev/null
+    tmp1=$(lspci | grep -i vga | grep -i nvidia >> /dev/null)
     if [ $? -eq 0 ]
     then
         NVIDIA=1
         arch-chroot /mnt pacman -S nvidia --noconfirm 1> /dev/null 2> ./errorfile || funerror "pacmanerror" 2
     fi
-    lspci | grep -i vga | grep -i intel >> /dev/null
+    tmp1=$(lspci | grep -i vga | grep -i intel >> /dev/null)
     if [ $? -eq 0 ]
     then
         INTEL=1
@@ -157,8 +158,8 @@ then
     arch-chroot /mnt pacman -S xorg --noconfirm 1> /dev/null 2> ./errorfile || funerror "pacmanerror" 2
     dialog --title "Installing" --infobox "Installing Chinese fonts, please wait" 12 35
     arch-chroot /mnt pacman -S wqy-bitmapfont wqy-microhei wqy-zenhei --noconfirm 1> /dev/null 2> ./errorfile || funerror "pacmanerror" 2
-    echo "echo 'LANG=zh_CN.UTF-8
-LC_COLLATE=C' > /etc/locale.conf" | arch-chroot /mnt &> /dev/null
+    echo "LANG=zh_CN.UTF-8
+LC_COLLATE=C" > /mnt/etc/locale.conf
 
 
     if [ ${DESKTOP_ENV} = "xfce4" ]
