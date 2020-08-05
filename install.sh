@@ -4,7 +4,14 @@ funerror(){
     dialog --title $1 --textbox errorfile 20 60
     exit $2
 }
+notdialog(){
+    echo "dialog error please run:
+pacman -Sy
+pacman -S dialog"
+    exit 20
+}
 setfont /usr/share/kbd/consolefonts/iso01-12x22.psfu.gz
+dialog --help &> /dev/null || notdialog
 ping -c 4 blog.jinjiang.fun 1> /dev/null 2> ./errorfile || funerror "NetworkError!" 1
 
 timedatectl set-ntp true &> /dev/null
