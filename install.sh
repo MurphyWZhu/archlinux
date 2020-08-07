@@ -5,11 +5,18 @@ funerror(){
     exit $2
 }
 notdialog(){
-    echo "dialog error please run:
+    echo "dialog install error please run:
 pacman -Sy
 pacman -S dialog"
     exit 20
 }
+
+echo 'Server = https://mirrors.bfsu.edu.cn/archlinux/$repo/os/$arch
+Server = https://mirrors.tuna.tsinghua.edu.cn/archlinux/$repo/os/$arch
+Server = https://mirrors.ustc.edu.cn/archlinux/$repo/os/$arch
+Server = https://mirror.bjtu.edu.cn/disk3/archlinux/$repo/os/$arch' > /etc/pacman.d/mirrorlist
+pacman -Sy &> /dev/null
+pacman -S dialog --noconfirm &> /dev/null || notdialog
 setfont /usr/share/kbd/consolefonts/iso01-12x22.psfu.gz
 dialog --help &> /dev/null || notdialog
 ping -c 4 blog.jinjiang.fun 1> /dev/null 2> ./errorfile || funerror "NetworkError!" 1
@@ -32,10 +39,6 @@ else
     mount /dev/${DISK}1 /mnt
 fi
 
-echo 'Server = https://mirrors.bfsu.edu.cn/archlinux/$repo/os/$arch
-Server = https://mirrors.tuna.tsinghua.edu.cn/archlinux/$repo/os/$arch
-Server = https://mirrors.ustc.edu.cn/archlinux/$repo/os/$arch
-Server = https://mirror.bjtu.edu.cn/disk3/archlinux/$repo/os/$arch' > /etc/pacman.d/mirrorlist
 
 dialog --title "Installing" --infobox "Installation in progress, please wait" 12 35
 pacstrap /mnt base base-devel linux linux-firmware vim networkmanager 1> /dev/null 2> ./errorfile || funerror "pacmanerror" 2
