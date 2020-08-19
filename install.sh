@@ -4,21 +4,13 @@ funerror(){
     dialog --title $1 --textbox errorfile 20 60
     exit $2
 }
-notdialog(){
-    echo "dialog install error please run:
-pacman -Sy
-pacman -S dialog"
-    exit 20
+installdialog(){
+    pacman -Sy &> /dev/null
+    pacman -S dialog --noconfirm &> /dev/null
 }
-
-echo 'Server = https://mirrors.bfsu.edu.cn/archlinux/$repo/os/$arch
-Server = https://mirrors.tuna.tsinghua.edu.cn/archlinux/$repo/os/$arch
-Server = https://mirrors.ustc.edu.cn/archlinux/$repo/os/$arch
-Server = https://mirror.bjtu.edu.cn/disk3/archlinux/$repo/os/$arch' > /etc/pacman.d/mirrorlist
-pacman -Sy &> /dev/null
-pacman -S dialog --noconfirm &> /dev/null || notdialog
+cp ./configfile/mirrorslist /mnt/etc/pacman.d/mirrorslist
+dialog --help &> /dev/null || installdialog
 setfont /usr/share/kbd/consolefonts/iso01-12x22.psfu.gz
-dialog --help &> /dev/null || notdialog
 ping -c 4 blog.jinjiang.fun 1> /dev/null 2> ./errorfile || funerror "NetworkError!" 1
 
 timedatectl set-ntp true &> /dev/null
@@ -46,10 +38,7 @@ pacstrap /mnt base base-devel linux linux-firmware vim networkmanager 1> /dev/nu
 genfstab -U /mnt >> /mnt/etc/fstab
 arch-chroot /mnt ln -sf /usr/share/zoneinfo/Asia/Shanghai /etc/localtime
 arch-chroot /mnt hwclock --systohc
-echo 'en_US.UTF-8 UTF-8
-zh_CN.UTF-8 UTF-8
-zh_TW.UTF-8 UTF-8
-zh_HK.UTF-8 UTF-8' >> /mnt/etc/locale.gen
+cp ./configfile/locale.gen /mnt/etc/locale.gen
 
 arch-chroot /mnt locale-gen >> /dev/null
 echo 'LANG=en_US.UTF-8' >> /mnt/etc/locale.conf
@@ -99,44 +88,8 @@ arch-chroot /mnt sed -i "s/# %wheel ALL=(ALL) ALL/%wheel ALL=(ALL) ALL/g" /etc/s
 dialog --title "Iptables_config" --yesno "Enable Iptables?" 12 35 && ENABLE_IPTABLES="true" || ENABLE_IPTABLES="false"
 if [ ${ENABLE_IPTABLES} = "true" ]
 then
-    cat > /mnt/etc/iptables/iptables.rules <<EOF
-*filter
-:INPUT DROP [0:0]
-:FORWARD DROP [0:0]
-:OUTPUT ACCEPT [11:1196]
-:TCP - [0:0]
-:UDP - [0:0]
--A INPUT -m conntrack --ctstate RELATED,ESTABLISHED -j ACCEPT
--A INPUT -i lo -j ACCEPT
--A INPUT -m conntrack --ctstate INVALID -j DROP
--A INPUT -p icmp -m icmp --icmp-type 8 -m conntrack --ctstate NEW -j ACCEPT
--A INPUT -p udp -m conntrack --ctstate NEW -j UDP
--A INPUT -p tcp -m tcp --tcp-flags FIN,SYN,RST,ACK SYN -m conntrack --ctstate NEW -j TCP
--A INPUT -p udp -j REJECT --reject-with icmp-port-unreachable
--A INPUT -p tcp -j REJECT --reject-with tcp-reset
--A INPUT -j REJECT --reject-with icmp-proto-unreachable
-COMMIT
-EOF
-
-    cat > /mnt/etc/iptables/ip6tables.rules <<EOF
-*filter
-:INPUT DROP [0:0]
-:FORWARD DROP [0:0]
-:OUTPUT ACCEPT [0:0]
-:TCP - [0:0]
-:UDP - [0:0]
--A INPUT -m conntrack --ctstate RELATED,ESTABLISHED -j ACCEPT
--A INPUT -i lo -j ACCEPT
--A INPUT -m conntrack --ctstate INVALID -j DROP
--A INPUT -s fe80::/10 -p ipv6-icmp -j ACCEPT
--A INPUT -p udp -m conntrack --ctstate NEW -j UDP
--A INPUT -p tcp -m tcp --tcp-flags FIN,SYN,RST,ACK SYN -m conntrack --ctstate NEW -j TCP
--A INPUT -p udp -j REJECT --reject-with icmp6-adm-prohibited
--A INPUT -p tcp -j REJECT --reject-with tcp-reset
--A INPUT -j REJECT --reject-with icmp6-adm-prohibited
--A INPUT -p ipv6-icmp -m icmp6 --icmpv6-type 128 -m conntrack --ctstate NEW -j ACCEPT
-COMMIT
-EOF
+    cp ./configfile/iptables.rules /mnt/etc/iptables/iptables.rules
+    cp ./configfile/ip6tables.rules /mnt/etc/iptables/ip6tables.rules
     arch-chroot /mnt systemctl enable iptables ip6tables &> /dev/null
 fi
 
