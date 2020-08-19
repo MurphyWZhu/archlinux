@@ -8,7 +8,7 @@ installdialog(){
     pacman -Sy &> /dev/null
     pacman -S dialog --noconfirm &> /dev/null
 }
-cp ./configfile/mirrorslist /mnt/etc/pacman.d/mirrorslist
+cp ./configfile/mirrorslist /etc/pacman.d/mirrorslist
 dialog --help &> /dev/null || installdialog
 setfont /usr/share/kbd/consolefonts/iso01-12x22.psfu.gz
 ping -c 4 blog.jinjiang.fun 1> /dev/null 2> ./errorfile || funerror "NetworkError!" 1
