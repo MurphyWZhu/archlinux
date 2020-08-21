@@ -4,7 +4,21 @@ funerror(){
     dialog --title $1 --textbox errorfile 20 60
     exit $2
 }
-
+installKde(){
+    dialog --title "Installing" --infobox "Installing kde, please wait" 12 35
+    pacman -S plasma dolphin konsole --noconfirm 1> /dev/null 2> ./errorfile || funerror "pacmanerror" 2
+    systemctl enable sddm &> /dev/null
+}
+installXfce(){
+    dialog --title "Installing" --infobox "Installing xfce4, please wait" 12 35
+    pacman -S xfce4 xfce4-goodies lightdm lightdm-gtk-greeter lightdm-gtk-greeter-settings network-manager-applet pavucontrol pulseaudio --noconfirm 1> /dev/null 2> ./errorfile || funerror "pacmanerror" 2
+    systemctl enable lightdm &> /dev/null
+}
+installGnome(){
+    dialog --title "Installing" --infobox "Installing gnome, please wait" 12 35
+    pacman -S gnome --noconfirm 1> /dev/null 2> ./errorfile || funerror "pacmanerror" 2
+    systemctl enable gdm &> /dev/null
+}
 ADMIN_USER=$(dialog --output-fd 1 --title "User_Config" --no-cancel --inputbox "User name:" 12 35)
 useradd -m -G wheel ${ADMIN_USER}
 
@@ -52,29 +66,14 @@ then
     echo "LANG=zh_CN.UTF-8
 LC_COLLATE=C" > /etc/locale.conf
 
-
-    if [ ${DESKTOP_ENV} = "2" ]
-    then
-        dialog --title "Installing" --infobox "Installing xfce4, please wait" 12 35
-        arch-chroot /mnt pacman -S xfce4 xfce4-goodies lightdm lightdm-gtk-greeter lightdm-gtk-greeter-settings network-manager-applet pavucontrol pulseaudio --noconfirm 1> /dev/null 2> ./errorfile || funerror "pacmanerror" 2
-        systemctl enable lightdm &> /dev/null
-    fi
-
-
-    if [ ${DESKTOP_ENV} = "3" ]
-    then
-        dialog --title "Installing" --infobox "Installing kde, please wait" 12 35
-        pacman -S plasma dolphin konsole --noconfirm 1> /dev/null 2> ./errorfile || funerror "pacmanerror" 2
-        pacman -S appstream appstream-qt archlinux-appstream-data --noconfirm 1> /dev/null 2> ./errorfile || funerror "pacmanerror" 2
-        systemctl enable sddm &> /dev/null
-    fi
-
-    if [ ${DESKTOP_ENV} = '4' ]
-    then
-        dialog --title "Installing" --infobox "Installing gnome, please wait" 12 35
-        pacman -S gnome --noconfirm 1> /dev/null 2> ./errorfile || funerror "pacmanerror" 2
-        systemctl enable gdm &> /dev/null
-    fi
+    case ${DESKTOP_ENV} in
+        "2") installXfce
+        ;;
+        "3") installKde
+        ;;
+        "4") installGnome
+        ;;
+    esac
 fi
 
 dialog --title "ARCHLINUXCN_config" --yesno "Enable archlinuxcn?" 12 35 && ARCHLINUXCN="true" || ARCHLINUXCN="false"
