@@ -26,6 +26,7 @@ installDeepin(){
     sed -i "s/#greeter-session=example-gtk-gnome/greeter-session=lightdm-deepin-greeter/g" /etc/lightdm/lightdm.conf
 }
 setfont /usr/share/kbd/consolefonts/iso01-12x22.psfu.gz
+ping -c 4 blog.jinjiang.fun 1> /dev/null 2> ./errorfile || funerror "NetworkError!" 1
 ADMIN_USER=$(dialog --output-fd 1 --title "ADD_User" --no-cancel --inputbox "User name:" 12 35)
 useradd -m -G wheel ${ADMIN_USER}
 
