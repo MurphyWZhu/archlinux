@@ -76,7 +76,7 @@ else
 fi
 mkdir /mnt/root/install
 cp -r ./* /mnt/root/install/
-dialog --title "Reboot" --yesno "Install Archlinux Successful\nIf you want to do the following\nPlease Reboot and Run:\ncd /root/install\nchmod +x after.sh\n./after.sh\nReboot now?" 15 40 && reboot || exit 0
+dialog --title "Reboot" --yesno "Install Archlinux Successful\nIf you want to do the following\nPlease Reboot and Run:\n    cd /root/install\n    chmod +x after.sh\n    ./after.sh\nReboot now?" 15 40 && reboot || exit 0
 if [ ${boot_mode} = "uefi" ]
 then
     umount /mnt/boot

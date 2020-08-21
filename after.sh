@@ -19,10 +19,16 @@ installGnome(){
     pacman -S gnome --noconfirm 1> /dev/null 2> ./errorfile || funerror "pacmanerror" 2
     systemctl enable gdm &> /dev/null
 }
-ADMIN_USER=$(dialog --output-fd 1 --title "User_Config" --no-cancel --inputbox "User name:" 12 35)
+installDeepin(){
+    dialog --title "Installing" --infobox "Installing Deepin, please wait" 12 35
+    pacman -S deepin deepin-extra --noconfirm 1> /dev/null 2> ./errorfile || funerror "pacmanerror" 2
+    systemctl enable gdm &> /dev/null
+}
+setfont /usr/share/kbd/consolefonts/iso01-12x22.psfu.gz
+ADMIN_USER=$(dialog --output-fd 1 --title "ADD_User" --no-cancel --inputbox "User name:" 12 35)
 useradd -m -G wheel ${ADMIN_USER}
 
-ADMIN_USER_PASSWD=$(dialog --output-fd 1 --title "User_Config" --no-cancel --inputbox "User password:" 12 35)
+ADMIN_USER_PASSWD=$(dialog --output-fd 1 --title "ADD_User" --no-cancel --inputbox "User password:" 12 35)
 chpasswd <<EOF
 ${ADMIN_USER}:${ADMIN_USER_PASSWD}
 EOF
@@ -36,8 +42,7 @@ then
     systemctl enable iptables ip6tables &> /dev/null
 fi
 
-
-DESKTOP_ENV=$(dialog --output-fd 1 --title "Select_Desktop" --menu "Select a Desktop" 12 35 5 1 no-desktop 2 XFCE 3 KDE 4 GNOME)
+DESKTOP_ENV=$(dialog --output-fd 1 --title "Select_Desktop" --menu "Select a Desktop" 12 35 5 1 no-desktop 2 XFCE 3 KDE 4 GNOME 5 Deepin)
 if [ ${DESKTOP_ENV} != "1" ]
 then
     dialog --title "Installing" --infobox "Installing GPU drive, please wait" 12 35
