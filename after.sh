@@ -78,6 +78,8 @@ LC_COLLATE=C" > /etc/locale.conf
         ;;
         "4") installGnome
         ;;
+        "5") installDeepin
+        ;;
     esac
 fi
 
