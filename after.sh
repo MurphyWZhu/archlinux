@@ -22,7 +22,8 @@ installGnome(){
 installDeepin(){
     dialog --title "Installing" --infobox "Installing Deepin, please wait" 12 35
     pacman -S deepin deepin-extra --noconfirm 1> /dev/null 2> ./errorfile || funerror "pacmanerror" 2
-    systemctl enable gdm &> /dev/null
+    systemctl enable lightdm &> /dev/null
+    sed -i "s/#greeter-session=example-gtk-gnome/greeter-session=lightdm-deepin-greeter/g" /etc/lightdm/lightdm.conf
 }
 setfont /usr/share/kbd/consolefonts/iso01-12x22.psfu.gz
 ADMIN_USER=$(dialog --output-fd 1 --title "ADD_User" --no-cancel --inputbox "User name:" 12 35)
