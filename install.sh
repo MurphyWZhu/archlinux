@@ -74,7 +74,9 @@ else
     arch-chroot /mnt grub-install --target=i386-pc /dev/${DISK} 1> /dev/null 2> ./errorfile || funerror "grub-installerror" 8
     arch-chroot /mnt grub-mkconfig -o /boot/grub/grub.cfg 1> /dev/null 2> errorfile || funerror "grub-mkconfigerror" 9
 fi
-
+mkdir /mnt/root/install
+cp -r ./* /mnt/root/install/
+dialog --title "Reboot" --yesno "Install Archlinux Successful\nIf you want to do the following\nPlease Reboot and Run:\ncd /root/install\nchmod +x after.sh\n./after.sh\nReboot now?" 15 40 && reboot || exit 0
 if [ ${boot_mode} = "uefi" ]
 then
     umount /mnt/boot
