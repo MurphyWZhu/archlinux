@@ -12,7 +12,7 @@ ping -c 4 www.baidu.com 1> /dev/null 2> ./errorfile || funerror "NetworkError!" 
 timedatectl set-ntp true &> /dev/null
 
 ls /sys/firmware/efi/efivars &> /dev/null && boot_mode="uefi" || boot_mode="bios"
-DISK_NUM=$(whiptail --output-fd 1 --title "Select a Disk" --menu "Select a Disk" 12 35 5 $(lsblk | grep disk | awk '{print(FNR,$1)}' | xargs))
+DISK_NUM=$(whiptail --output-fd 1 --title "Select a Disk" --menu "Select a Disk" 12 35 5 $(lsblk | grep disk | awk '{print(FNR,$1)}' | xargs) 3>&1 1>&2 2>&3)
 DISK=$(lsblk | grep disk | awk '{print($1)}' | sed -n ${DISK_NUM}p)
 whiptail --title "Warning" --yesno "use this script to empty the installation disk" 12 35 || exit 0
 if [ $boot_mode = "uefi" ]
@@ -39,14 +39,14 @@ cp ./configfile/locale.gen /mnt/etc/locale.gen
 arch-chroot /mnt locale-gen >> /dev/null
 echo 'LANG=en_US.UTF-8' >> /mnt/etc/locale.conf
 
-HOST_NAME=$(whiptail --output-fd 1 --title "Hostname_Config" --nocancel  --inputbox "Hostname:" 12 35)
+HOST_NAME=$(whiptail --output-fd 1 --title "Hostname_Config" --nocancel  --inputbox "Hostname:" 12 35 3>&1 1>&2 2>&3)
 echo "${HOST_NAME}" >> /mnt/etc/hostname
 echo "127.0.0.1    localhost
 ::1    localhost
 127.0.1.1    ${HOST_NAME}.localdomain    ${HOST_NAME}" >> /mnt/etc/hosts
 arch-chroot /mnt systemctl enable NetworkManager &> /dev/null 
 
-ROOT_PASSWD=$(whiptail --output-fd 1 --title "Password_Config" --nocancel --inputbox "Root password:" 12 35)
+ROOT_PASSWD=$(whiptail --output-fd 1 --title "Password_Config" --nocancel --inputbox "Root password:" 12 35 3>&1 1>&2 2>&3)
 arch-chroot /mnt chpasswd <<EOF
 root:${ROOT_PASSWD}
 EOF
