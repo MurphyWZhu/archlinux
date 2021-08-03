@@ -27,10 +27,10 @@ installDeepin(){
 }
 setfont /usr/share/kbd/consolefonts/iso01-12x22.psfu.gz
 ping -c 4 www.baidu.com 1> /dev/null 2> ./errorfile || funerror "NetworkError!" 1
-ADMIN_USER=$(whiptail --output-fd 1 --title "ADD_User" --nocancel --inputbox "User name:" 12 35 3>&1 1>&2 2>&3)
+ADMIN_USER=$(whiptail --title "ADD_User" --nocancel --inputbox "User name:" 12 35 3>&1 1>&2 2>&3)
 useradd -m -G wheel ${ADMIN_USER}
 
-ADMIN_USER_PASSWD=$(whiptail --output-fd 1 --title "ADD_User" --nocancel --inputbox "User password:" 12 35 3>&1 1>&2 2>&3)
+ADMIN_USER_PASSWD=$(whiptail --title "ADD_User" --nocancel --inputbox "User password:" 12 35 3>&1 1>&2 2>&3)
 chpasswd <<EOF
 ${ADMIN_USER}:${ADMIN_USER_PASSWD}
 EOF
@@ -44,7 +44,7 @@ then
     systemctl enable iptables ip6tables &> /dev/null
 fi
 
-DESKTOP_ENV=$(whiptail --output-fd 1 --title "Select_Desktop" --menu "Select a Desktop" 12 35 5 1 no-desktop 2 XFCE 3 KDE 4 GNOME 5 Deepin)
+DESKTOP_ENV=$(whiptail --title "Select_Desktop" --menu "Select a Desktop" 12 35 5 1 no-desktop 2 XFCE 3 KDE 4 GNOME 5 Deepin)
 if [ ${DESKTOP_ENV} != "1" ]
 then
     whiptail --title "Installing" --infobox "Installing GPU drive, please wait" 12 35
