@@ -44,7 +44,7 @@ then
     systemctl enable iptables ip6tables &> /dev/null
 fi
 
-DESKTOP_ENV=$(whiptail --title "Select_Desktop" --menu "Select a Desktop" 12 35 5 1 no-desktop 2 XFCE 3 KDE 4 GNOME 5 Deepin)
+DESKTOP_ENV=$(whiptail --title "Select_Desktop" --menu "Select a Desktop" 12 35 5 1 no-desktop 2 XFCE 3 KDE 4 GNOME 5 Deepin 3>&1 1>&2 2>&3)
 if [ ${DESKTOP_ENV} != "1" ]
 then
     whiptail --title "Installing" --infobox "Installing GPU drive, please wait" 12 35
